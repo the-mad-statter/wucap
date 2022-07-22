@@ -1,0 +1,28 @@
+Package: wucap
+Type: Package
+Title: Interface with REDCap at WashU
+Version: 0.1.0
+Authors@R: 
+    person(given = "Matthew",
+           family = "Schuelke",
+           role = c("aut", "cre"),
+           email = "schuelke@wustl.edu",
+           comment = c(ORCID = "0000-0001-5755-1725"))
+Description: This package provides helpful functions for interacting with 
+    REDCap instances at WashU.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/the-mad-statter/wucap
+BugReports: https://github.com/the-mad-statter/wucap/issues
+Imports: 
+    checkmate,
+    dplyr,
+    httr,
+    jsonlite,
+    readr,
+    REDCapR,
+    shiny,
+    stringr,
+    usethis
+RoxygenNote: 7.2.1
