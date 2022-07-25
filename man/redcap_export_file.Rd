@@ -5,7 +5,7 @@
 \title{Export a File}
 \usage{
 redcap_export_file(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  redcap_uri = redcap_api_endpoints$prod$latest,
   token,
   record,
   field,

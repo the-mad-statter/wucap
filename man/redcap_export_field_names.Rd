@@ -5,7 +5,7 @@
 \title{Export List of Export Field Names}
 \usage{
 redcap_export_field_names(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  redcap_uri = redcap_api_endpoints$prod$latest,
   token,
   format = c("xml", "csv", "json"),
   field,
@@ -72,13 +72,13 @@ redcap_export_field_names(
   token = my_token,
   format = "csv",
   field = "checkboxes"
- ) \%>\%
- httr::content(
-   as = "text",
-   encoding = "UTF-8",
-   content_type = "text/csv"
- ) \%>\%
- readr::read_csv() \%>\%
- dplyr::pull(export_field_name)
+) \%>\%
+  httr::content(
+    as = "text",
+    encoding = "UTF-8",
+    content_type = "text/csv"
+  ) \%>\%
+  readr::read_csv() \%>\%
+  dplyr::pull(export_field_name)
 }
 }

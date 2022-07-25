@@ -1,3 +1,29 @@
+#' REDCap API Endpoints
+#'
+#' Constants for various API endpoints
+redcap_api_endpoints <- list(
+  "prod" = list(
+    "v7" = "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/redcap/api/",
+    "latest" = "https://redcap.wustl.edu/redcap/api/"
+  )
+)
+
+#' REDCap Data Access Group Endpoints
+#'
+#' Constants for various DAG endpoints
+redcap_dag_endpoints <- list(
+  "prod" = list(
+    "v7" = paste0(
+      "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/",
+      "redcap/redcap_v7.3.5/DataAccessGroups/index.php?pid="
+    ),
+    "latest" = paste0(
+      "https://redcap.wustl.edu/redcap/redcap_v10.6.28/",
+      "index.php?route=DataAccessGroupsController:index&pid="
+    )
+  )
+)
+
 #' REDCap Array
 #'
 #' @param name name of the array
@@ -15,29 +41,31 @@
 #'
 #' ## events array for one event from mother
 #' redcap_array("events", "baseline_arm_1")
-redcap_array <- function(name, values) {
-  a <- as.list(values)
-  names(a) <- sprintf("%s[%i]", name, 0:(length(values) - 1))
-  class(a) <- "redcap_array"
-  return(a)
-}
+redcap_array <-
+  function(name, values) {
+    a <- as.list(values)
+    names(a) <- sprintf("%s[%i]", name, 0:(length(values) - 1))
+    class(a) <- "redcap_array"
+    return(a)
+  }
 
 #' Parse Content Type
 #'
 #' @param content_type content-type header from REDCap to be parsed
 #' @return list containing type, name, and charset
-parse_content_type <- function (content_type) {
-  parts <- stringr::str_remove_all(
-    stringr::str_trim(strsplit(content_type, ";")[[1]]),
-    '"'
-  )
+parse_content_type <-
+  function(content_type) {
+    parts <- stringr::str_remove_all(
+      stringr::str_trim(strsplit(content_type, ";")[[1]]),
+      '"'
+    )
 
-  list(
-    "type" = parts[1],
-    "name" = stringr::str_remove(parts[2], "name="),
-    "charset" = stringr::str_remove(parts[3], "charset=")
-  )
-}
+    list(
+      "type" = parts[1],
+      "name" = stringr::str_remove(parts[2], "name="),
+      "charset" = stringr::str_remove(parts[3], "charset=")
+    )
+  }
 
 #' Generate Project XML Filename
 #'
@@ -47,13 +75,14 @@ parse_content_type <- function (content_type) {
 #' if it had been exported via the web interface
 #'
 #' @export
-project_xml_filename <- function(project_title) {
-  sprintf(
-    "%s_%s.REDCap.xml",
-    gsub(" ", "", project_title),
-    format(Sys.time(), "%Y-%m-%d_%H%M")
-  )
-}
+project_xml_filename <-
+  function(project_title) {
+    sprintf(
+      "%s_%s.REDCap.xml",
+      gsub(" ", "", project_title),
+      format(Sys.time(), "%Y-%m-%d_%H%M")
+    )
+  }
 
 #' Read Project XML
 #'
@@ -62,9 +91,10 @@ project_xml_filename <- function(project_title) {
 #' @return collapsed character representation of the project xml file
 #'
 #' @export
-read_project_xml <- function(odm) {
-  paste(readLines(odm), collapse = "")
-}
+read_project_xml <-
+  function(odm) {
+    paste(readLines(odm), collapse = "")
+  }
 
 #' Write Project XML
 #'
@@ -72,14 +102,15 @@ read_project_xml <- function(odm) {
 #' @param file file or connection to write to
 #'
 #' @export
-write_project_xml <- function(r, file) {
-  r %>%
-    httr::content() %>%
-    as.character() %>%
-    writeLines(con = file)
-}
+write_project_xml <-
+  function(r, file) {
+    r %>%
+      httr::content() %>%
+      as.character() %>%
+      writeLines(con = file)
+  }
 
-#' Optional Argument
+#' Validate Argument
 #'
 #' @description Utility function to set a default value if missing or null and
 #' to run a validation test.
@@ -89,17 +120,21 @@ write_project_xml <- function(r, file) {
 #' @param v validation function
 #'
 #' @return either x or the default value after passing validation
-optional_argument <- function(x, d = NULL, v = checkmate::assert_character) {
-  if(missing(x) || is.null(x))
-    x <- d
-  if(!is.null(x))
-    do.call(v, list(x = x))
-  x
-}
+validate_arg <-
+  function(x, d = NULL, v = checkmate::assert_character) {
+    if (missing(x) || is.null(x)) {
+      x <- d
+    }
+    if (!is.null(x)) {
+      do.call(v, list(x = x))
+    }
+    x
+  }
 
 #' Check if argument is of type redcap_array
 #'
 #' @param x object to check
-assert_redcap_array <- function(x) {
-  checkmate::assert_class(x, "redcap_array")
-}
+assert_redcap_array <-
+  function(x) {
+    checkmate::assert_class(x, "redcap_array")
+  }

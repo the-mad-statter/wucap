@@ -1,9 +1,11 @@
-#' @importFrom dplyr %>%
 #' @export
-dplyr::`%>%`
-
+#' @importFrom dplyr %>%
 `%>%` <- dplyr::`%>%`
 
 #' @importFrom rlang .data
 #' @export
-rlang::.data
+.data <- rlang::.data
+
+#' @importFrom rlang .env
+#' @export
+.env <- rlang::.env

@@ -2,6 +2,7 @@
 
 export("%>%")
 export(.data)
+export(.env)
 export(edit_credential_local)
 export(project_xml_filename)
 export(read_project_xml)
@@ -27,3 +28,4 @@ export(store_credential_local)
 export(write_project_xml)
 importFrom(dplyr,"%>%")
 importFrom(rlang,.data)
+importFrom(rlang,.env)

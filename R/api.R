@@ -21,21 +21,20 @@
 #' @return httr::response() object containing DAGs for the project in the
 #' format specified
 #' @export
-redcap_export_dags <- function(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
-  token,
-  format = c("xml", "csv", "json"),
-  return_format = c("xml", "csv", "json")
-) {
-  body <- list(
-    "token" = token,
-    "content" = "dag",
-    "format" = match.arg(format),
-    "returnFormat" = match.arg(return_format)
-  )
+redcap_export_dags <-
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
+           token,
+           format = c("xml", "csv", "json"),
+           return_format = c("xml", "csv", "json")) {
+    body <- list(
+      "token" = token,
+      "content" = "dag",
+      "format" = match.arg(format),
+      "returnFormat" = match.arg(return_format)
+    )
 
-  httr::POST(redcap_uri, body = body, encode = "form")
-}
+    httr::POST(redcap_uri, body = body, encode = "form")
+  }
 
 #' Import DAGs
 #'
@@ -89,24 +88,23 @@ redcap_export_dags <- function(
 #'
 #' @return httr::response() object containing number of DAGs added or updated
 #' @export
-redcap_import_dags <- function(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
-  token,
-  format = c("xml", "csv", "json"),
-  data,
-  return_format = c("xml", "csv", "json")
-) {
-  body <- list(
-    "token" = token,
-    "content" = "dag",
-    "action" = "import",
-    "format" = match.arg(format),
-    "data" = data,
-    "returnFormat" = match.arg(return_format)
-  )
+redcap_import_dags <-
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
+           token,
+           format = c("xml", "csv", "json"),
+           data,
+           return_format = c("xml", "csv", "json")) {
+    body <- list(
+      "token" = token,
+      "content" = "dag",
+      "action" = "import",
+      "format" = match.arg(format),
+      "data" = data,
+      "returnFormat" = match.arg(return_format)
+    )
 
-  httr::POST(redcap_uri, body = body, encode = "form")
-}
+    httr::POST(redcap_uri, body = body, encode = "form")
+  }
 
 ## Events ----------------------------------------------------------------------
 
@@ -167,32 +165,31 @@ redcap_import_dags <- function(
 #'   token = my_token,
 #'   format = "csv",
 #'   field = "checkboxes"
-#'  ) %>%
-#'  httr::content(
-#'    as = "text",
-#'    encoding = "UTF-8",
-#'    content_type = "text/csv"
-#'  ) %>%
-#'  readr::read_csv() %>%
-#'  dplyr::pull(export_field_name)
+#' ) %>%
+#'   httr::content(
+#'     as = "text",
+#'     encoding = "UTF-8",
+#'     content_type = "text/csv"
+#'   ) %>%
+#'   readr::read_csv() %>%
+#'   dplyr::pull(export_field_name)
 #' }
-redcap_export_field_names <- function(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
-  token,
-  format = c("xml", "csv", "json"),
-  field,
-  return_format = c("xml", "csv", "json")
-) {
-  body <- list(
-    "token" = token,
-    "content" = "exportFieldNames",
-    "format" = match.arg(format),
-    "field" = optional_argument(field),
-    "returnFormat" = match.arg(return_format)
-  )
+redcap_export_field_names <-
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
+           token,
+           format = c("xml", "csv", "json"),
+           field,
+           return_format = c("xml", "csv", "json")) {
+    body <- list(
+      "token" = token,
+      "content" = "exportFieldNames",
+      "format" = match.arg(format),
+      "field" = validate_arg(field),
+      "returnFormat" = match.arg(return_format)
+    )
 
-  httr::POST(redcap_uri, body = body, encode = "form")
-}
+    httr::POST(redcap_uri, body = body, encode = "form")
+  }
 
 ## Files -----------------------------------------------------------------------
 
@@ -242,7 +239,7 @@ redcap_export_field_names <- function(
 #' )
 #' }
 redcap_export_file <-
-  function(redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
            token,
            record,
            field,
@@ -255,9 +252,10 @@ redcap_export_file <-
       "action" = "export",
       "record" = record,
       "field" = field,
-      "event" = optional_argument(event),
-      "repeat_instance" = optional_argument(repeat_instance,
-                                            v = checkmate::check_integer),
+      "event" = validate_arg(event),
+      "repeat_instance" = validate_arg(repeat_instance,
+        v = checkmate::check_integer
+      ),
       "returnFormat" = match.arg(return_format)
     )
 
@@ -330,7 +328,7 @@ redcap_export_file <-
 #' )
 #' }
 redcap_import_file <-
-  function(redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
            token,
            record,
            field,
@@ -344,9 +342,10 @@ redcap_import_file <-
       "action" = "import",
       "record" = record,
       "field" = field,
-      "event" = optional_argument(event),
-      "repeat_instance" = optional_argument(repeat_instance,
-                                            v = checkmate::check_integer),
+      "event" = validate_arg(event),
+      "repeat_instance" = validate_arg(repeat_instance,
+        v = checkmate::check_integer
+      ),
       "file" = httr::upload_file(file),
       "returnFormat" = match.arg(return_format)
     )
@@ -447,7 +446,7 @@ redcap_import_file <-
 #'   httr::content(as = "text") -> my_project_token
 #' }
 redcap_create_project <-
-  function(redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
            token,
            format = c("xml", "csv", "json"),
            data,
@@ -459,7 +458,7 @@ redcap_create_project <-
       "format" = format,
       "data" = data,
       "returnFormat" = match.arg(return_format),
-      "odm" = optional_argument(odm)
+      "odm" = validate_arg(odm)
     )
 
     httr::POST(redcap_uri, body = body, encode = "form")
@@ -481,7 +480,7 @@ redcap_create_project <-
 #' @return httr::response() object containing the project information
 #' @export
 redcap_export_project_info <-
-  function(redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
            token,
            format = c("xml", "csv", "json"),
            return_format = c("xml", "csv", "json")) {
@@ -596,7 +595,7 @@ redcap_export_project_info <-
 #' )
 #' }
 redcap_export_project_xml <-
-  function(redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
            token,
            return_metadata_only = FALSE,
            records,
@@ -607,22 +606,24 @@ redcap_export_project_xml <-
            export_data_access_groups = FALSE,
            filter_logic = NULL,
            export_files = FALSE) {
-    # https://community.projectredcap.org/questions/81879/api-project-xml-export-missing-redcapsurveysgroup.html
-    # - bug reported in v9.7.7 saying xml file missing a lot of the project settings
-    # - essentially this endpoint can only export metadata + data only in versions prior to v9
+    # https://community.projectredcap.org/questions/81879/
+    # api-project-xml-export-missing-redcapsurveysgroup.html
+    # - bug reported in v9.7.7 saying xml file missing many project settings
+    # - essentially this endpoint can only export metadata + data only in
+    # versions prior to v9
 
     body <- list(
       "token" = token,
       "content" = "project_xml",
       "format" = "xml", # not in api dox
       "returnMetadataOnly" = tolower(return_metadata_only),
-      "records" = optional_argument(records, v = assert_redcap_array),
-      "fields" = optional_argument(fields, v = assert_redcap_array),
-      "events" = optional_argument(events, v = assert_redcap_array),
+      "records" = validate_arg(records, v = assert_redcap_array),
+      "fields" = validate_arg(fields, v = assert_redcap_array),
+      "events" = validate_arg(events, v = assert_redcap_array),
       "returnFormat" = match.arg(return_format),
       "exportSurveyFields" = tolower(export_survey_fields),
       "exportDataAccessGroups" = tolower(export_data_access_groups),
-      "filterLogic" = optional_argument(filter_logic),
+      "filterLogic" = validate_arg(filter_logic),
       "exportFiles" = tolower(export_files)
     )
 
@@ -729,9 +730,9 @@ redcap_export_project_xml <-
 #' format. You may choose to force all data values containing a decimal to have
 #' the same decimal character, which will be applied to all calc fields and
 #' number-validated text fields. Options include comma ',' or dot/full stop '.',
-#'  but if left blank/null, then it will export numbers using the fields'
-#'  native decimal format. Simply provide the value of either ',' or '.' for
-#'  this parameter.
+#' but if left blank or null, then it will export numbers using the fields'
+#' native decimal format. Simply provide the value of either ',' or '.' for
+#' this parameter.
 #'
 #' @return httr::response() object
 #' @export
@@ -739,51 +740,50 @@ redcap_export_project_xml <-
 #' @examples \dontrun{
 #' redcap_export_records(token = my_token)
 #' }
-redcap_export_records <- function(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
-  token,
-  format = c("xml", "csv", "json", "odm"),
-  type = c("flat", "eav"),
-  records,
-  fields,
-  forms,
-  events,
-  raw_or_label = c("raw", "label"),
-  raw_or_label_headers = c("raw", "label"),
-  export_checkbox_label = FALSE,
-  return_format = c("xml", "csv", "json"),
-  export_survey_fields = FALSE,
-  export_data_access_groups = FALSE,
-  filter_logic,
-  date_range_begin,
-  date_range_end,
-  csv_delimiter = c(",", "\t", ";", "|", "^"),
-  decimal_character = c("native", ",", ".")
-) {
-  body <- list(
-    "token" = token,
-    "content" = "record",
-    "format" = match.arg(format),
-    "type" = match.arg(type),
-    "records" = optional_argument(records, v = assert_redcap_array),
-    "fields" = optional_argument(fields, v = assert_redcap_array),
-    "forms" = optional_argument(forms, v = assert_redcap_array),
-    "events" = optional_argument(events, v = assert_redcap_array),
-    "rawOrLabel" = match.arg(raw_or_label),
-    "rawOrLabelHeaders" = match.arg(raw_or_label_headers),
-    "exportCheckboxLabel" = export_checkbox_label,
-    "returnFormat" = match.arg(return_format),
-    "exportSurveyFields" = export_survey_fields,
-    "exportDataAccessGroups" = export_data_access_groups,
-    "filterLogic" = optional_argument(filter_logic),
-    "dateRangeBegin" = optional_argument(date_range_begin),
-    "dateRangeEnd" = optional_argument(date_range_end),
-    "csvDelimiter" = match.arg(csv_delimiter),
-    "decimalCharacter" = match.arg(decimal_character)
-  )
+redcap_export_records <-
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
+           token,
+           format = c("xml", "csv", "json", "odm"),
+           type = c("flat", "eav"),
+           records,
+           fields,
+           forms,
+           events,
+           raw_or_label = c("raw", "label"),
+           raw_or_label_headers = c("raw", "label"),
+           export_checkbox_label = FALSE,
+           return_format = c("xml", "csv", "json"),
+           export_survey_fields = FALSE,
+           export_data_access_groups = FALSE,
+           filter_logic,
+           date_range_begin,
+           date_range_end,
+           csv_delimiter = c(",", "\t", ";", "|", "^"),
+           decimal_character = c("native", ",", ".")) {
+    body <- list(
+      "token" = token,
+      "content" = "record",
+      "format" = match.arg(format),
+      "type" = match.arg(type),
+      "records" = validate_arg(records, v = assert_redcap_array),
+      "fields" = validate_arg(fields, v = assert_redcap_array),
+      "forms" = validate_arg(forms, v = assert_redcap_array),
+      "events" = validate_arg(events, v = assert_redcap_array),
+      "rawOrLabel" = match.arg(raw_or_label),
+      "rawOrLabelHeaders" = match.arg(raw_or_label_headers),
+      "exportCheckboxLabel" = export_checkbox_label,
+      "returnFormat" = match.arg(return_format),
+      "exportSurveyFields" = export_survey_fields,
+      "exportDataAccessGroups" = export_data_access_groups,
+      "filterLogic" = validate_arg(filter_logic),
+      "dateRangeBegin" = validate_arg(date_range_begin),
+      "dateRangeEnd" = validate_arg(date_range_end),
+      "csvDelimiter" = match.arg(csv_delimiter),
+      "decimalCharacter" = match.arg(decimal_character)
+    )
 
-  httr::POST(redcap_uri, body = body, encode = "form")
-}
+    httr::POST(redcap_uri, body = body, encode = "form")
+  }
 
 #' Import Records
 #'
@@ -890,7 +890,7 @@ redcap_export_records <- function(
 #' )
 #' }
 redcap_import_records <-
-  function(redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
            token,
            format = c("xml", "csv", "json", "odm"),
            type = c("flat", "eav"),
@@ -946,7 +946,7 @@ redcap_import_records <-
 #' )
 #' }
 redcap_delete_records <-
-  function(redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
            token,
            records,
            arm) {
@@ -954,8 +954,8 @@ redcap_delete_records <-
       "token" = token,
       "content" = "record",
       "action" = "delete",
-      "records" = optional_argument(records, v = assert_redcap_array),
-      "arm" = optional_argument(arm, v = checkmate::assert_integer)
+      "records" = validate_arg(records, v = assert_redcap_array),
+      "arm" = validate_arg(arm, v = checkmate::assert_integer)
     )
 
     httr::POST(redcap_uri, body = body)

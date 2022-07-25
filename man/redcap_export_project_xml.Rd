@@ -5,7 +5,7 @@
 \title{Export Entire Project as REDCap XML File (containing metadata & data)}
 \usage{
 redcap_export_project_xml(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  redcap_uri = redcap_api_endpoints$prod$latest,
   token,
   return_metadata_only = FALSE,
   records,

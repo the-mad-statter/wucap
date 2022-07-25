@@ -5,7 +5,7 @@
 \title{Create Project}
 \usage{
 redcap_create_project2(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  redcap_uri = redcap_api_endpoints$prod$latest,
   token,
   project_title,
   purpose = c("Practice/Just for fun", "Other", "Research", "Quality Improvement",

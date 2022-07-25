@@ -9,6 +9,9 @@
 Development](https://img.shields.io/badge/status-under%20development-red.svg)](https://github.com/the-mad-statter/wucap)
 [![Last
 Commit](https://img.shields.io/github/last-commit/the-mad-statter/wucap.svg)](https://github.com/the-mad-statter/wucap/commits/master)
+[![lint](https://github.com/the-mad-statter/wucap/actions/workflows/lint.yaml/badge.svg)](https://github.com/the-mad-statter/wucap/actions/workflows/lint.yaml)
+[![test-coverage](https://github.com/the-mad-statter/wucap/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/the-mad-statter/wucap/actions/workflows/test-coverage.yaml)
+[![R-CMD-check](https://github.com/the-mad-statter/wucap/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/the-mad-statter/wucap/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 ## Overview
@@ -26,6 +29,25 @@ You can install `wucap` from
 ``` r
 remotes::install_github("the-mad-statter/wucap")
 ```
+
+<br />
+
+## Code of Conduct
+
+Please note that the wucap project is released with a [Contributor Code
+of
+Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
+
+<br />
+
+## Code Style
+
+This package attempts to follow the [tidyverse style
+guide](https://style.tidyverse.org/index.html).
+
+The use of [{styler}](https://github.com/r-lib/styler) and
+[{lintr}](https://github.com/r-lib/lintr) are recommended.
 
 <br />
 

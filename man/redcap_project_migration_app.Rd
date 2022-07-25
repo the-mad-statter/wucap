@@ -5,14 +5,12 @@
 \title{Project Migration App}
 \usage{
 redcap_project_migration_app(
-  redcap_uri_src = "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/redcap/api/",
-  redcap_uri_dst = "https://redcap.wustl.edu/redcap/api/",
+  redcap_uri_src = redcap_api_endpoints$prod$v7,
+  redcap_uri_dst = redcap_api_endpoints$prod$latest,
   token_src = "",
   token_spr = "",
-  redcap_dag_uri_src =
-    "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/redcap/redcap_v7.3.5/DataAccessGroups/index.php?pid=",
-  redcap_dag_uri_dst =
-    "https://redcap.wustl.edu/redcap/redcap_v10.6.28/index.php?route=DataAccessGroupsController:index&pid="
+  redcap_dag_uri_src = redcap_dag_endpoints$prod$v7,
+  redcap_dag_uri_dst = redcap_dag_endpoints$prod$latest
 )
 }
 \arguments{

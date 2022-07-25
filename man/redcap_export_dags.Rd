@@ -5,7 +5,7 @@
 \title{Export DAGs}
 \usage{
 redcap_export_dags(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  redcap_uri = redcap_api_endpoints$prod$latest,
   token,
   format = c("xml", "csv", "json"),
   return_format = c("xml", "csv", "json")

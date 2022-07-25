@@ -5,7 +5,7 @@
 \title{Delete Records}
 \usage{
 redcap_delete_records(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  redcap_uri = redcap_api_endpoints$prod$latest,
   token,
   records,
   arm

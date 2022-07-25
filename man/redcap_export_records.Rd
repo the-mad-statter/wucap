@@ -5,7 +5,7 @@
 \title{Export Records}
 \usage{
 redcap_export_records(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  redcap_uri = redcap_api_endpoints$prod$latest,
   token,
   format = c("xml", "csv", "json", "odm"),
   type = c("flat", "eav"),
@@ -130,9 +130,9 @@ quotes for this parameter.}
 format. You may choose to force all data values containing a decimal to have
 the same decimal character, which will be applied to all calc fields and
 number-validated text fields. Options include comma ',' or dot/full stop '.',
- but if left blank/null, then it will export numbers using the fields'
- native decimal format. Simply provide the value of either ',' or '.' for
- this parameter.}
+but if left blank or null, then it will export numbers using the fields'
+native decimal format. Simply provide the value of either ',' or '.' for
+this parameter.}
 }
 \value{
 httr::response() object

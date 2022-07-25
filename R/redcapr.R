@@ -24,24 +24,25 @@ store_credential_local <-
       dplyr::transmute(
         redcap_uri = redcap_uri,
         username = username,
-        project_id = as.character(project_id),
+        project_id = as.character(.data["project_id"]),
         token = token,
-        comment = project_title
+        comment = .data["project_title"]
       ) %>%
       readr::write_csv(path_credential, na = "", append = TRUE, quote = "all")
   }
 
 #' @inherit REDCapR::retrieve_credential
 #' @export
-retrieve_credential_local <- function(project_id,
-                                      path_credential = "~/.REDCapR",
-                                      ...) {
-  REDCapR::retrieve_credential_local(
-    path_credential = path_credential,
-    project_id = project_id,
-    ...
-  )
-}
+retrieve_credential_local <-
+  function(project_id,
+           path_credential = "~/.REDCapR",
+           ...) {
+    REDCapR::retrieve_credential_local(
+      path_credential = path_credential,
+      project_id = project_id,
+      ...
+    )
+  }
 
 #' Edit tokens and other credentials in a file
 #'
@@ -50,19 +51,24 @@ retrieve_credential_local <- function(project_id,
 #'
 #' @return Target path, invisibly.
 #' @export
-edit_credential_local <- function(path_credential = "~/.REDCapR") {
-  r_user <- gsub("\\\\", "/", normalizePath("~"))
-  path_credential <- sub("~", r_user, path_credential)
-  usethis::edit_file(path_credential)
-}
+edit_credential_local <-
+  function(path_credential = "~/.REDCapR") {
+    r_user <- gsub("\\\\", "/", normalizePath("~"))
+    path_credential <- sub("~", r_user, path_credential)
+    usethis::edit_file(path_credential)
+  }
 
 #' @inherit REDCapR::redcap_read
 #' @export
-redcap_read <- function(project_id, path_credential = "~/.REDCapR", ...) {
-  credentials <- REDCapR::retrieve_credential_local(path_credential, project_id)
-  REDCapR::redcap_read(
-    redcap_uri = credentials$redcap_uri,
-    token = credentials$token,
-    ...
-  )$data
-}
+redcap_read <-
+  function(project_id, path_credential = "~/.REDCapR", ...) {
+    credentials <- REDCapR::retrieve_credential_local(
+      path_credential,
+      project_id
+    )
+    REDCapR::redcap_read(
+      redcap_uri = credentials$redcap_uri,
+      token = credentials$token,
+      ...
+    )$data
+  }

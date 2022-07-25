@@ -68,7 +68,7 @@
 #'   httr::content(r, as = "text") -> my_project_token
 #' }
 redcap_create_project2 <-
-  function(redcap_uri = "https://redcap.wustl.edu/redcap/api/",
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
            token,
            project_title,
            purpose = c(
@@ -99,9 +99,10 @@ redcap_create_project2 <-
       "project_title" = project_title,
       "purpose" = as.character(purpose),
       "purpose_other" = ifelse(purpose == 1,
-                               checkmate::assert_character(purpose_other),
-                               NULL),
-      "project_notes" = optional_argument(project_notes),
+        checkmate::assert_character(purpose_other),
+        NULL
+      ),
+      "project_notes" = validate_arg(project_notes),
       "is_longitudinal" = as.character(as.integer(is_longitudinal)),
       "surveys_enabled" = as.character(as.integer(surveys_enabled)),
       "record_autonumbering_enabled" = as.character(
@@ -145,49 +146,48 @@ redcap_create_project2 <-
 #' @return a pair of httr response objects: one for the export and one for the
 #' import
 #' @export
-redcap_migrate_file <- function(
-  redcap_uri_src = "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/redcap/api/",
-  redcap_uri_dst = "https://redcap.wustl.edu/redcap/api/",
-  token_src,
-  token_dst,
-  record,
-  field,
-  event,
-  repeat_instance,
-  return_format = c("xml", "csv", "json")
-) {
-  redcap_export_file(
-    redcap_uri = redcap_uri_src,
-    token = token_src,
-    record = record,
-    field = field,
-    event = event,
-    repeat_instance = repeat_instance,
-    return_format = match.arg(return_format)
-  ) -> r_export
+redcap_migrate_file <-
+  function(redcap_uri_src = redcap_api_endpoints$prod$v7,
+           redcap_uri_dst = redcap_api_endpoints$prod$latest,
+           token_src,
+           token_dst,
+           record,
+           field,
+           event,
+           repeat_instance,
+           return_format = c("xml", "csv", "json")) {
+    r_export <- redcap_export_file(
+      redcap_uri = redcap_uri_src,
+      token = token_src,
+      record = record,
+      field = field,
+      event = event,
+      repeat_instance = repeat_instance,
+      return_format = match.arg(return_format)
+    )
 
-  base_name <- basename(r_export$content[[1]])
+    base_name <- basename(r_export$content[[1]])
 
-  message(sprintf("Downloading file: %s...", base_name))
+    message(sprintf("Downloading file: %s...", base_name))
 
-  redcap_import_file(
-    token = token_dst,
-    redcap_uri = redcap_uri_dst,
-    record = record,
-    field = field,
-    event = event,
-    repeat_instance = repeat_instance,
-    file = r_export$content[[1]],
-    return_format = match.arg(return_format)
-  ) -> r_import
+    r_import <- redcap_import_file(
+      token = token_dst,
+      redcap_uri = redcap_uri_dst,
+      record = record,
+      field = field,
+      event = event,
+      repeat_instance = repeat_instance,
+      file = r_export$content[[1]],
+      return_format = match.arg(return_format)
+    )
 
-  message(sprintf("Uploading file: %s...", base_name))
+    message(sprintf("Uploading file: %s...", base_name))
 
-  list(
-    "export_response" = r_export,
-    "import_response" = r_import
-  )
-}
+    list(
+      "export_response" = r_export,
+      "import_response" = r_import
+    )
+  }
 
 #' Migrate All Files from One Project to Another
 #'
@@ -207,94 +207,95 @@ redcap_migrate_file <- function(
 #' passed in, it will default to 'xml'.
 #'
 #' @export
-redcap_migrate_files <- function(
-  redcap_uri_src = "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/redcap/api/",
-  redcap_uri_dst = "https://redcap.wustl.edu/redcap/api/",
-  token_src,
-  token_dst,
-  return_format = c("xml", "csv", "json")
-) {
-  message("Reading source project data dictionary...")
-  REDCapR::redcap_metadata_read(
-    redcap_uri = redcap_uri_src,
-    token = token_src
-  )$data -> data_dictionary
+redcap_migrate_files <-
+  function(redcap_uri_src = redcap_api_endpoints$prod$v7,
+           redcap_uri_dst = redcap_api_endpoints$prod$latest,
+           token_src,
+           token_dst,
+           return_format = c("xml", "csv", "json")) {
+    message("Reading source project data dictionary...")
+    data_dictionary <- REDCapR::redcap_metadata_read(
+      redcap_uri = redcap_uri_src,
+      token = token_src
+    )$data
 
-  message("Reading source project records...")
-  REDCapR::redcap_read(
-    redcap_uri = redcap_uri_src,
-    token = token_src,
-    export_survey_fields = TRUE,
-    export_data_access_groups = TRUE
-  )$data -> project_records
+    message("Reading source project records...")
+    project_records <- REDCapR::redcap_read(
+      redcap_uri = redcap_uri_src,
+      token = token_src,
+      export_survey_fields = TRUE,
+      export_data_access_groups = TRUE
+    )$data
 
-  # temporarily change signature fields into regular upload fields
-  message("Disabling destination project signature constraints...")
-  REDCapR::redcap_metadata_write(
-    ds = data_dictionary %>%
-      dplyr::mutate(
-        text_validation_type_or_show_slider_number =
-          dplyr::if_else(
-            text_validation_type_or_show_slider_number == "signature",
-            NA_character_,
-            text_validation_type_or_show_slider_number
-          )
-      ),
-    redcap_uri = redcap_uri_dst,
-    token = token_dst
-  )
-
-  # get names of fields of type file
-  data_dictionary %>%
-    dplyr::filter(field_type == "file") %>%
-    dplyr::pull(field_name) -> file_field_names
-
-  # for each file field find records requiring a file migration and do it
-  for(file_field_name in file_field_names) {
-    message(sprintf("Transfering files for field: %s...", file_field_name))
-
-    # find records with files in the current field
-    project_records %>%
-      dplyr::select(
-        dplyr::any_of(
-          c(
-            data_dictionary[[1, 1]],
-            "redcap_event_name",
-            "redcap_repeat_instance",
-            file_field_name
-          )
-        )
-      ) %>%
-      dplyr::filter(
-        !is.na(.data[[file_field_name]])
-      ) -> files_for_migration
-
-    # migrate the files
-    for(k in 1:nrow(files_for_migration)) {
-      redcap_migrate_file(
-        redcap_uri_src = redcap_uri_src,
-        redcap_uri_dst = redcap_uri_dst,
-        token_src = token_src,
-        token_dst = token_dst,
-        record = files_for_migration[[k, data_dictionary[[1, 1]]]],
-        field = file_field_name,
-        event = files_for_migration[[k, "redcap_event_name"]],
-        repeat_instance = as.integer(
-          files_for_migration[[k, "redcap_repeat_instance"]]
+    # temporarily change signature fields into regular upload fields
+    message("Disabling destination project signature constraints...")
+    REDCapR::redcap_metadata_write(
+      ds = data_dictionary %>%
+        dplyr::mutate(
+          text_validation_type_or_show_slider_number =
+            dplyr::if_else(
+              .data[["text_validation_type_or_show_slider_number"]] ==
+                "signature",
+              NA_character_,
+              .data[["text_validation_type_or_show_slider_number"]]
+            )
         ),
-        return_format = match.arg(return_format)
-      )
-    }
-  }
+      redcap_uri = redcap_uri_dst,
+      token = token_dst
+    )
 
-  # add signature constraint back to original signature fields
-  message("Enabling destination project signature constraints...")
-  REDCapR::redcap_metadata_write(
-    ds = data_dictionary,
-    redcap_uri = redcap_uri_dst,
-    token = token_dst
-  ) -> r
-}
+    # get names of fields of type file
+    file_field_names <- data_dictionary %>%
+      dplyr::filter(.data[["field_type"]] == "file") %>%
+      dplyr::pull(.data[["field_name"]])
+
+    # for each file field find records requiring a file migration and do it
+    for (file_field_name in file_field_names) {
+      message(sprintf("Transfering files for field: %s...", file_field_name))
+
+      # find records with files in the current field
+      files_for_migration <- project_records %>%
+        dplyr::select(
+          dplyr::any_of(
+            c(
+              data_dictionary[[1, 1]],
+              "redcap_event_name",
+              "redcap_repeat_instance",
+              file_field_name
+            )
+          )
+        ) %>%
+        dplyr::filter(
+          !is.na(.data[[file_field_name]])
+        )
+
+      # migrate the files
+      for (k in seq_len(nrow(files_for_migration))) {
+        redcap_migrate_file(
+          redcap_uri_src = redcap_uri_src,
+          redcap_uri_dst = redcap_uri_dst,
+          token_src = token_src,
+          token_dst = token_dst,
+          record = files_for_migration[[k, data_dictionary[[1, 1]]]],
+          field = file_field_name,
+          event = files_for_migration[[k, "redcap_event_name"]],
+          repeat_instance = as.integer(
+            files_for_migration[[k, "redcap_repeat_instance"]]
+          ),
+          return_format = match.arg(return_format)
+        )
+      }
+    }
+
+    # add signature constraint back to original signature fields
+    message("Enabling destination project signature constraints...")
+    REDCapR::redcap_metadata_write(
+      ds = data_dictionary,
+      redcap_uri = redcap_uri_dst,
+      token = token_dst
+    ) %>%
+      invisible()
+  }
 
 #' Reset Completion Flags
 #'
@@ -318,140 +319,146 @@ redcap_migrate_files <- function(
 #' @param project_records (optional) If supplied should be the data object from
 #' a call to REDCapR::redcap_read(). If not supplied the function will call
 #' REDCapR::redcap_read().
-redcap_reset_completion_flags <- function(
-  redcap_uri = "https://redcap.wustl.edu/redcap/api/",
-  token,
-  data_dictionary,
-  project_records
-) {
-  warning(paste0(
-    "This function does not work as intended.\n",
-    "See function definition for more information."
-  ))
+redcap_reset_completion_flags <-
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
+           token,
+           data_dictionary,
+           project_records) {
+    warning(paste0(
+      "This function does not work as intended.\n",
+      "See function definition for more information."
+    ))
 
-  # the logic of this function works and the api accepts the write, but REDCap
-  # v10 reverts to red and not grey as intended
-  #
-  # the following test code can be used to see the effect on a single record
-  #
-  # tmp <- tempfile(fileext = ".csv")
-  # dplyr::tibble(
-  #   record = 3,
-  #   field_name = "instrument_1_complete",
-  #   value = "", # "": Incomplete; 0: Incomplete; 1: Unverified; 2: Complete
-  #   redcap_event_name = "event_1_arm_1",
-  #   redcap_repeat_instrument = "instrument_1",
-  #   redcap_repeat_instance = 1
-  # ) %>%
-  #   readr::write_csv(tmp)
-  #
-  # washu::redcap_import_records(
-  #   redcap_uri = "https://redcap.wustl.edu/redcap/api/",
-  #   token = "211F2459A749042B342EC8A4DB569F4E",
-  #   format = "csv",
-  #   type = "eav",
-  #   overwrite_behavior = "overwrite",
-  #   data = paste(readLines(tmp), collapse = "\n"),
-  #   return_content = "ids",
-  #   return_format = "xml"
-  # ) %>%
-  #   httr::content() %>%
-  #   as.character()
+    # nolint start
 
-  # and here are pseudo sql queries that might work to do it in the backend
-  # DELETE D
-  # FROM redcap_data D
-  # LEFT JOIN redcap_events_metadata E ON D.event_id=E.event_id
-  # WHERE D.project_id='13006' AND D.record='3' AND D.field_name='instrument_1_complete' AND E.descrip='Event 1' AND D.instance IS NULL
-  #
-  # DELETE D
-  # FROM redcap_data D
-  # LEFT JOIN redcap_events_metadata E ON D.event_id=E.event_id
-  # WHERE D.project_id='13006' AND D.record='3' AND D.field_name='instrument_1_complete' AND E.descrip='Event 1' AND D.instance='2'
+    # the logic of this function works and the api accepts the write, but REDCap
+    # v10 reverts to red and not grey as intended
+    #
+    # the following test code can be used to see the effect on a single record
+    #
+    # tmp <- tempfile(fileext = ".csv")
+    # dplyr::tibble(
+    #   record = 3,
+    #   field_name = "instrument_1_complete",
+    #   value = "", # "": Incomplete; 0: Incomplete; 1: Unverified; 2: Complete
+    #   redcap_event_name = "event_1_arm_1",
+    #   redcap_repeat_instrument = "instrument_1",
+    #   redcap_repeat_instance = 1
+    # ) %>%
+    #   readr::write_csv(tmp)
+    #
+    # washu::redcap_import_records(
+    #   redcap_uri = redcap_api_endpoints$prod$latest,
+    #   token = "211F2459A749042B342EC8A4DB569F4E",
+    #   format = "csv",
+    #   type = "eav",
+    #   overwrite_behavior = "overwrite",
+    #   data = paste(readLines(tmp), collapse = "\n"),
+    #   return_content = "ids",
+    #   return_format = "xml"
+    # ) %>%
+    #   httr::content() %>%
+    #   as.character()
 
-  if(missing(data_dictionary) || is.null(data_dictionary)) {
-    REDCapR::redcap_metadata_read(
-      redcap_uri = redcap_uri,
-      token = token
-    )$data -> data_dictionary
-  }
+    # and here are pseudo sql queries that might work to do it in the backend
+    # DELETE D
+    # FROM redcap_data D
+    # LEFT JOIN redcap_events_metadata E ON D.event_id=E.event_id
+    # WHERE D.project_id='13006' AND D.record='3' AND
+    # D.field_name='instrument_1_complete' AND E.descrip='Event 1'
+    # AND D.instance IS NULL
+    #
+    # DELETE D
+    # FROM redcap_data D
+    # LEFT JOIN redcap_events_metadata E ON D.event_id=E.event_id
+    # WHERE D.project_id='13006' AND D.record='3' AND
+    # D.field_name='instrument_1_complete' AND E.descrip='Event 1'
+    # AND D.instance='2'
 
-  if(missing(project_records) || is.null(project_records)) {
-    REDCapR::redcap_read(
-      redcap_uri = redcap_uri,
-      token = token,
-      export_survey_fields = TRUE,
-      export_data_access_groups = TRUE
-    )$data -> project_records
-  }
+    # nolint end
 
-  for(form in unique(data_dictionary$form_name)) {
-    # generate vector of checkbox field names for form
-    data_dictionary %>%
-      dplyr::filter(form_name == form) %>%
-      dplyr::filter(field_type == "checkbox") %>%
-      dplyr::mutate(
-        n_choices = stringr::str_count(select_choices_or_calculations, "\\|")
-      ) %>%
-      dplyr::select(field_name, n_choices) %>%
-      purrr::pmap(
-        function(field_name, n_choices) {
-          paste0(field_name, "___", 0:n_choices)
-        }
-      ) %>%
-      unlist() -> checkbox_field_names
-
-    # generate vector of non-checkbox field names for form
-    data_dictionary %>%
-      dplyr::filter(form_name == form) %>%
-      dplyr::filter(
-        field_name != data_dictionary[[1, 1]],
-        field_type != "checkbox",
-        field_type != "descriptive"
-      ) %>%
-      dplyr::pull(field_name) -> noncheckbox_field_names
-
-    # count not missing for form for record-event-instance
-    project_records %>%
-      dplyr::select(
-        dplyr::all_of(
-          c(
-            noncheckbox_field_names,
-            checkbox_field_names
-          )
-        )
-      ) %>%
-      dplyr::mutate_at(
-        dplyr::all_of(checkbox_field_names),
-        ~ dplyr::if_else(. == 0, NA_real_, .)
-      ) %>%
-      dplyr::mutate(n_nna = rowSums(!is.na(.))) %>%
-      dplyr::pull(n_nna) -> n_nna
-
-    # make dataframe of flags to set to grey "Incomplete (no data saved)"
-    project_records %>%
-      dplyr::mutate(n_nna = n_nna) %>%
-      dplyr::filter(n_nna == 0) %>%
-      dplyr::select(
-        dplyr::any_of(
-          c(
-            data_dictionary[[1, 1]],
-            "redcap_event_name",
-            "redcap_repeat_instance",
-            paste0(form, "_complete")
-          )
-        )
-      ) -> d
-
-    if(nrow(d) > 0) {
-      d[paste0(form, "_complete")] <- ""
-
-      # write flags to REDCap
-      REDCapR::redcap_write(
-        ds_to_write = d,
+    if (missing(data_dictionary) || is.null(data_dictionary)) {
+      data_dictionary <- REDCapR::redcap_metadata_read(
         redcap_uri = redcap_uri,
         token = token
-      ) -> r
+      )$data
+    }
+
+    if (missing(project_records) || is.null(project_records)) {
+      project_records <- REDCapR::redcap_read(
+        redcap_uri = redcap_uri,
+        token = token,
+        export_survey_fields = TRUE,
+        export_data_access_groups = TRUE
+      )$data
+    }
+
+    for (form in unique(data_dictionary$form_name)) {
+      # generate vector of checkbox field names for form
+      checkbox_field_names <- data_dictionary %>%
+        dplyr::filter(.data[["form_name"]] == form) %>%
+        dplyr::filter(.data[["field_type"]] == "checkbox") %>%
+        dplyr::mutate(
+          n_choices = stringr::str_count(
+            .data[["select_choices_or_calculations"]], "\\|"
+          )
+        ) %>%
+        dplyr::select(.data[["field_name"]], .data[["n_choices"]]) %>%
+        purrr::pmap_chr(
+          function(field_name, n_choices) {
+            paste0(field_name, "___", 0:n_choices)
+          }
+        )
+
+      # generate vector of non-checkbox field names for form
+      noncheckbox_field_names <- data_dictionary %>%
+        dplyr::filter(.data[["form_name"]] == form) %>%
+        dplyr::filter(
+          .data[["field_name"]] != data_dictionary[[1, 1]],
+          .data[["field_type"]] != "checkbox",
+          .data[["field_type"]] != "descriptive"
+        ) %>%
+        dplyr::pull(.data[["field_name"]])
+
+      field_names <- c(noncheckbox_field_names, checkbox_field_names)
+
+      # count not missing for form for record-event-instance
+      n_nna <- project_records %>%
+        dplyr::select(
+          dplyr::all_of(field_names)
+        ) %>%
+        dplyr::mutate_at(
+          dplyr::all_of(checkbox_field_names),
+          ~ dplyr::if_else(.data == 0, NA_real_, .data)
+        ) %>%
+        dplyr::mutate(n_nna = rowSums(!is.na(.data))) %>%
+        dplyr::pull(n_nna)
+
+      # make dataframe of flags to set to grey "Incomplete (no data saved)"
+      d <- project_records %>%
+        dplyr::mutate(n_nna = n_nna) %>%
+        dplyr::filter(n_nna == 0) %>%
+        dplyr::select(
+          dplyr::any_of(
+            c(
+              data_dictionary[[1, 1]],
+              "redcap_event_name",
+              "redcap_repeat_instance",
+              paste0(form, "_complete")
+            )
+          )
+        )
+
+      if (nrow(d) > 0) {
+        d[paste0(form, "_complete")] <- ""
+
+        # write flags to REDCap
+        REDCapR::redcap_write(
+          ds_to_write = d,
+          redcap_uri = redcap_uri,
+          token = token
+        ) %>%
+          invisible()
+      }
     }
   }
-}
