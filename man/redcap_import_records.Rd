@@ -26,20 +26,27 @@ project.}
 token is unique to each user for each project). See the section on the
 left-hand menu for obtaining a token for a given project.}
 
-\item{format}{csv, json, xml \[default\], odm ('odm' refers to CDISC ODM XML
+\item{format}{csv, json, xml [default], odm ('odm' refers to CDISC ODM XML
 format, specifically ODM version 1.3.1)}
 
-\item{type}{* flat - output as one record per row \[default\]
-* eav - input as one data point per row
-    + Non-longitudinal: Will have the fields - record(1), field_name, value
-    + Longitudinal: Will have the fields - record*, field_name, value,
-    redcap_event_name(2)
+\item{type}{\itemize{
+\item flat - output as one record per row [default]
+\item eav - input as one data point per row
+\itemize{
+\item Non-longitudinal: Will have the fields - record(1), field_name, value
+\item Longitudinal: Will have the fields - record*, field_name, value,
+redcap_event_name(2)
+}
+}
+\enumerate{
+\item 'record' refers to the record ID for the project
+\item Event name is the unique name for an event, not the event label
+}}
 
-1. 'record' refers to the record ID for the project
-2. Event name is the unique name for an event, not the event label}
-
-\item{overwrite_behavior}{* normal - blank/empty values will be ignored \[default\]
-* overwrite - blank/empty values are valid and will overwrite data}
+\item{overwrite_behavior}{\itemize{
+\item normal - blank/empty values will be ignored [default]
+\item overwrite - blank/empty values are valid and will overwrite data
+}}
 
 \item{force_auto_number}{If record auto-numbering has been enabled in the
 project, it may be desirable to import records where each record's record
@@ -48,35 +55,35 @@ interface). If this parameter is set to 'true', the record names provided in
 the request will not be used (although they are still required in order to
 associate multiple rows of data to an individual record in the request), but
 instead those records in the request will receive new record names during the
- import process. NOTE: To see how the provided record names get translated
- into new auto record names, the returnContent parameter should be set to
- 'auto_ids', which will return a record list similar to 'ids' value, but it
- will have the new record name followed by the provided record name in the
- request, in which the two are comma-delimited. For example, if false (or
- 'false') - The record names provided in the request will be used.
- \[default\] true (or 'true') - New record names will be automatically
- determined.}
+import process. NOTE: To see how the provided record names get translated
+into new auto record names, the returnContent parameter should be set to
+'auto_ids', which will return a record list similar to 'ids' value, but it
+will have the new record name followed by the provided record name in the
+request, in which the two are comma-delimited. For example, if false (or
+'false') - The record names provided in the request will be used.
+[default] true (or 'true') - New record names will be automatically
+determined.}
 
 \item{data}{The formatted data to be imported.
 
 TIP: If importing repeating instances for a repeating event or repeating
 instrument, you may auto-number the instances by providing a value of 'new'
 for the 'redcap_repeat_instance' field in the dataset you are importing. This
- is useful because it allows you to import such data without the need to
- determine how many instances already exist for a given repeating
- event/instance prior to the import. NOTICE: The 'new' value option for
- auto-numbering instances does NOT work for 'eav' type data but only for
- 'flat' type.
+is useful because it allows you to import such data without the need to
+determine how many instances already exist for a given repeating
+event/instance prior to the import. NOTICE: The 'new' value option for
+auto-numbering instances does NOT work for 'eav' type data but only for
+'flat' type.
 
 NOTE: When importing data in EAV type format, please be aware that checkbox
 fields must have their field_name listed as variable+'___'+optionCode and its
- value as either '0' or '1' (unchecked or checked, respectively). For
- example, for a checkbox field with variable name 'icecream', it would be
- imported as EAV with the field_name as 'icecream___4' having a value of '1'
- in order to set the option coded with '4' (which might be 'Chocolate') as '
- checked'.}
+value as either '0' or '1' (unchecked or checked, respectively). For
+example, for a checkbox field with variable name 'icecream', it would be
+imported as EAV with the field_name as 'icecream___4' having a value of '1'
+in order to set the option coded with '4' (which might be 'Chocolate') as '
+checked'.}
 
-\item{date_format}{MDY, DMY, YMD \[default\] - the format of values being
+\item{date_format}{MDY, DMY, YMD [default] - the format of values being
 imported for dates or datetime fields (understood with M representing
 'month', D as 'day', and Y as 'year') - NOTE: The default format is Y-M-D
 (with dashes), while MDY and DMY values should always be formatted as M/D/Y
@@ -84,14 +91,16 @@ or D/M/Y (with slashes), respectively.}
 
 \item{csv_delimiter}{Set the delimiter used to separate values in the CSV
 data file (for CSV format only). Options include: comma ',' (default), 'tab',
- semi-colon ';', pipe '|', or caret '^'. Simply provide the value in quotes
- for this parameter.}
+semi-colon ';', pipe '|', or caret '^'. Simply provide the value in quotes
+for this parameter.}
 
-\item{return_content}{count \[default\] - the number of records imported, ids
-- a list of all record IDs that were imported, auto_ids = (used only when
+\item{return_content}{count [default] - the number of records imported, ids
+\itemize{
+\item a list of all record IDs that were imported, auto_ids = (used only when
 forceAutoNumber=true) a list of pairs of all record IDs that were imported,
 includes the new ID created and the ID value that was sent in the API
-request (e.g., 323,10).}
+request (e.g., 323,10).
+}}
 
 \item{return_format}{csv, json, xml - specifies the format of error messages.
 If you do not pass in this flag, it will select the default format for you
@@ -99,7 +108,7 @@ passed based on the 'format' flag you passed in or if no format flag was
 passed in, it will default to 'xml'.}
 }
 \value{
-httr::response() object containing the number of records deleted.
+\link[httr:response]{httr::response} object containing the number of records deleted.
 }
 \description{
 Import Records

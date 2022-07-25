@@ -38,7 +38,7 @@ passed based on the 'format' flag you passed in or if no format flag was
 passed in, it will default to 'xml'.}
 }
 \value{
-httr::response() object containing the path to the file on disk
+\link[httr:response]{httr::response} object containing the path to the file on disk
 }
 \description{
 This method allows you to download a document that has been
@@ -51,7 +51,7 @@ Please be aware that Data Export user rights will be applied to this
 API request. For example, if you have 'No Access' data export rights in the
 project, then the API file export will fail and return an error. And if you
 have 'De-Identified' or 'Remove all tagged Identifier fields' data export
-rights, then the API file export will fail and return an error *only if* the
+rights, then the API file export will fail and return an error \emph{only if} the
 File Upload field has been tagged as an Identifier field. To make sure that
 your API request does not return an error, you should have 'Full Data Set'
 export rights in the project.

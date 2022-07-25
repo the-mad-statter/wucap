@@ -32,16 +32,18 @@ project.}
 
 \item{token}{The Super API Token specific to a user}
 
-\item{format}{csv, json, xml [default], odm ('odm' refers to CDISC ODM XML
+\item{format}{csv, json, xml \verb{[default]}, odm ('odm' refers to CDISC ODM XML
 format, specifically ODM version 1.3.1)}
 
-\item{type}{* 'record' refers to the record ID for the project
+\item{type}{\itemize{
+\item 'record' refers to the record ID for the project
 \itemize{
-  \item{flat}{- output as one record per row [default]}
-  \item{eav}{- output as one data point per row
-    \item{Non-longitudinal:}{record*, field_name, value}
-    \item{Longitudinal:}{record*, field_name, value, redcap_event_name}
-  }
+\item{flat}{- output as one record per row \verb{[default]}}
+\item{eav}{- output as one data point per row
+\item{Non-longitudinal:}{record*, field_name, value}
+\item{Longitudinal:}{record*, field_name, value, redcap_event_name}
+}
+}
 }}
 
 \item{records}{an array of record names specifying specific records you wish
@@ -57,14 +59,14 @@ default, all records are pulled)}
 \item{events}{an array of unique event names that you wish to pull records
 for - only for longitudinal projects}
 
-\item{raw_or_label}{raw [default], label - export the raw coded values or
+\item{raw_or_label}{raw \verb{[default]}, label - export the raw coded values or
 labels for the options of multiple choice fields}
 
-\item{raw_or_label_headers}{raw [default], label - (for 'csv' format 'flat'
+\item{raw_or_label_headers}{raw \verb{[default]}, label - (for 'csv' format 'flat'
 type only) for the CSV headers, export the variable/field names (raw) or the
 field labels (label)}
 
-\item{export_checkbox_label}{true, false [default] - specifies the format of
+\item{export_checkbox_label}{true, false \verb{[default]} - specifies the format of
 checkbox field values specifically when exporting the data as labels (i.e.,
 when rawOrLabel=label) in flat format (i.e., when type=flat). When exporting
 labels, by default (without providing the exportCheckboxLabel flag or if
@@ -78,7 +80,7 @@ exportCheckboxLabel parameter is ignored for type=eav because 'eav' type
 always exports checkboxes differently anyway, in which checkboxes are
 exported with their true variable name (whereas the 'flat' type exports them
 as variable___code format), and another difference is that 'eav' type
-*always* exports checkbox values as the choice label for labels export, or
+\emph{always} exports checkbox values as the choice label for labels export, or
 as 0 or 1 (if unchecked or checked, respectively) for raw export.)}
 
 \item{return_format}{csv, json, xml - specifies the format of error
@@ -86,7 +88,7 @@ messages. If you do not pass in this flag, it will select the default format
 for you passed based on the 'format' flag you passed in or if no format flag
 was passed in, it will default to 'xml'.}
 
-\item{export_survey_fields}{true, false [default] - specifies whether or not
+\item{export_survey_fields}{true, false \verb{[default]} - specifies whether or not
 to export the survey identifier field (e.g., 'redcap_survey_identifier') or
 survey timestamp fields (e.g., instrument+'_timestamp') when surveys are
 utilized in the project. If you do not pass in this flag, it will default to
@@ -97,14 +99,14 @@ field or survey timestamp fields are imported via API data import, they will
 simply be ignored since they are not real fields in the project but rather
 are pseudo-fields.}
 
-\item{export_data_access_groups}{true, false [default] - specifies whether
+\item{export_data_access_groups}{true, false \verb{[default]} - specifies whether
 or not to export the 'redcap_data_access_group' field when data access
 groups are utilized in the project. If you do not pass in this flag, it will
 default to 'false'. NOTE: This flag is only viable if the user whose token
-is being used to make the API request is *not* in a data access group. If
+is being used to make the API request is \emph{not} in a data access group. If
 the user is in a group, then this flag will revert to its default value.}
 
-\item{filter_logic}{String of logic text (e.g., [age] > 30) for filtering
+\item{filter_logic}{String of logic text (e.g., \verb{[age]} > 30) for filtering
 the data to be returned by this API method, in which the API will only
 return the records (or record-events, if a longitudinal project) where the
 logic evaluates as TRUE. This parameter is blank/null by default unless a
@@ -112,12 +114,12 @@ value is supplied. Please note that if the filter logic contains any
 incorrect syntax, the API will respond with an error message.}
 
 \item{date_range_begin}{To return only records that have been created or
-modified *after* a given date/time, provide a timestamp in the format
+modified \emph{after} a given date/time, provide a timestamp in the format
 YYYY-MM-DD HH:MM:SS (e.g., '2017-01-01 00:00:00' for January 1, 2017 at
 midnight server time). If not specified, it will assume no begin time.}
 
 \item{date_range_end}{To return only records that have been created or
-modified *before* a given date/time, provide a timestamp in the format
+modified \emph{before} a given date/time, provide a timestamp in the format
 YYYY-MM-DD HH:MM:SS (e.g., '2017-01-01 00:00:00' for January 1, 2017 at
 midnight server time). If not specified, it will use the current server time.}
 
@@ -135,7 +137,7 @@ native decimal format. Simply provide the value of either ',' or '.' for
 this parameter.}
 }
 \value{
-httr::response() object
+\link[httr:response]{httr::response} object
 }
 \description{
 This method allows you to export a set of records for a project.
@@ -145,7 +147,7 @@ Note about export rights: Please be aware that Data Export user rights
 will be applied to this API request. For example, if you have 'No Access'
 data export rights in the project, then the API data export will fail and
 return an error. And if you have 'De-Identified' or 'Remove all tagged
-Identifier fields' data export rights, then some data fields *might* be
+Identifier fields' data export rights, then some data fields \emph{might} be
 removed and filtered out of the data set returned from the API. To make sure
 that no data is unnecessarily filtered out of your API request, you should
 have 'Full Data Set' export rights in the project.

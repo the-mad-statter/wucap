@@ -12,13 +12,13 @@
 #' @param token The API token specific to your REDCap project and username (each
 #'  token is unique to each user for each project). See the section on the
 #'  left-hand menu for obtaining a token for a given project.
-#' @param format csv, json, xml [default]
+#' @param format csv, json, xml `[default]`
 #' @param return_format csv, json, xml - specifies the format of error messages.
 #' If you do not pass in this flag, it will select the default format for you
 #' passed based on the 'format' flag you passed in or if no format flag was
 #' passed in, it will default to 'xml'.
 #'
-#' @return httr::response() object containing DAGs for the project in the
+#' @return [httr::response] object containing DAGs for the project in the
 #' format specified
 #' @export
 redcap_export_dags <-
@@ -51,21 +51,22 @@ redcap_export_dags <-
 #' @param token The API token specific to your REDCap project and username (each
 #'  token is unique to each user for each project). See the section on the
 #'  left-hand menu for obtaining a token for a given project.
-#' @param format csv, json, xml [default]
+#' @param format csv, json, xml `[default]`
 #' @param data Contains the attributes 'data_access_group_name'
 #' (referring to the group name) and 'unique_group_name'
 #' (referring to the auto-generated unique group name) of each DAG to be
 #' created/modified, in which they are provided in the specified format.
 #' 1. JSON Example:
-#' \[{"data_access_group_name":"CA Site","unique_group_name":"ca_site"}
+#' `[{"data_access_group_name":"CA Site","unique_group_name":"ca_site"}
 #' {"data_access_group_name":"FL Site","unique_group_name":"fl_site"},
-#' {"data_access_group_name":"New Site","unique_group_name":""}\]
+#' {"data_access_group_name":"New Site","unique_group_name":""}]`
 #' 2. CSV Example:
 #' data_access_group_name,unique_group_name
 #' "CA Site",ca_site
 #' "FL Site",fl_site
 #' "New Site",
-#' XML Example:
+#' #' XML Example:
+#' \out{
 #' <?xml version="1.0" encoding="UTF-8" ?>
 #' <dags>
 #'   <item>
@@ -81,12 +82,13 @@ redcap_export_dags <-
 #'   <unique_group_name></unique_group_name>
 #'   </item>
 #' </dags>
+#' }
 #' @param return_format csv, json, xml - specifies the format of error messages.
 #' If you do not pass in this flag, it will select the default format for you
 #' passed based on the 'format' flag you passed in or if no format flag was
 #' passed in, it will default to 'xml'.
 #'
-#' @return httr::response() object containing number of DAGs added or updated
+#' @return [httr::response] object containing number of DAGs added or updated
 #' @export
 redcap_import_dags <-
   function(redcap_uri = redcap_api_endpoints$prod$latest,
@@ -139,7 +141,7 @@ redcap_import_dags <-
 #' @param token The API token specific to your REDCap project and username (each
 #'  token is unique to each user for each project). See the section on the
 #'  left-hand menu for obtaining a token for a given project.
-#' @param format csv, json, xml [default]
+#' @param format csv, json, xml `[default]`
 #' @param field A field's variable name. By default, all fields are returned,
 #' but if field is provided, then it will only the export field name(s) for
 #' that field. If the field name provided is invalid, it will return an error.
@@ -148,7 +150,7 @@ redcap_import_dags <-
 #' passed based on the 'format' flag you passed in or if no format flag was
 #' passed in, it will default to 'xml'.
 #'
-#' @return httr::response() object containing Returns a list of the
+#' @return [httr::response] object containing Returns a list of the
 #' export/import-specific version of field names for all fields (or for one
 #' field, if desired) in a project in the format specified and ordered by their
 #' field order . The list that is returned will contain the three following
@@ -225,7 +227,7 @@ redcap_export_field_names <-
 #' passed based on the 'format' flag you passed in or if no format flag was
 #' passed in, it will default to 'xml'.
 #'
-#' @return httr::response() object containing the path to the file on disk
+#' @return [httr::response] object containing the path to the file on disk
 #' @export
 #'
 #' @examples
@@ -314,7 +316,7 @@ redcap_export_file <-
 #' passed based on the 'format' flag you passed in or if no format flag was
 #' passed in, it will default to 'xml'.
 #'
-#' @return httr::response() object reporting empty body on successful upload
+#' @return [httr::response] object reporting empty body on successful upload
 #' @export
 #'
 #' @examples
@@ -477,7 +479,7 @@ redcap_create_project <-
 #' passed based on the 'format' flag you passed in or if no format flag was
 #' passed in, it will default to 'xml'.
 #'
-#' @return httr::response() object containing the project information
+#' @return [httr::response] object containing the project information
 #' @export
 redcap_export_project_info <-
   function(redcap_uri = redcap_api_endpoints$prod$latest,
@@ -567,7 +569,7 @@ redcap_export_project_info <-
 #'  this option to TRUE can make the export very large and may prevent it from
 #'  completing if the project contains many files or very large files.
 #'
-#' @return httr::response() object
+#' @return [httr::response] object
 #' @export
 #'
 #' @examples
@@ -648,11 +650,11 @@ redcap_export_project_xml <-
 #' @param redcap_uri The URI (uniform resource identifier) of the REDCap
 #' project.
 #' @param token The Super API Token specific to a user
-#' @param format csv, json, xml [default], odm ('odm' refers to CDISC ODM XML
+#' @param format csv, json, xml `[default]`, odm ('odm' refers to CDISC ODM XML
 #' format, specifically ODM version 1.3.1)
 #' @param type * 'record' refers to the record ID for the project
 #' \itemize{
-#'   \item{flat}{- output as one record per row [default]}
+#'   \item{flat}{- output as one record per row `[default]`}
 #'   \item{eav}{- output as one data point per row
 #'     \item{Non-longitudinal:}{record*, field_name, value}
 #'     \item{Longitudinal:}{record*, field_name, value, redcap_event_name}
@@ -667,12 +669,12 @@ redcap_export_project_xml <-
 #' default, all records are pulled)
 #' @param events an array of unique event names that you wish to pull records
 #' for - only for longitudinal projects
-#' @param raw_or_label raw [default], label - export the raw coded values or
+#' @param raw_or_label raw `[default]`, label - export the raw coded values or
 #' labels for the options of multiple choice fields
-#' @param raw_or_label_headers raw [default], label - (for 'csv' format 'flat'
+#' @param raw_or_label_headers raw `[default]`, label - (for 'csv' format 'flat'
 #' type only) for the CSV headers, export the variable/field names (raw) or the
 #' field labels (label)
-#' @param export_checkbox_label true, false [default] - specifies the format of
+#' @param export_checkbox_label true, false `[default]` - specifies the format of
 #' checkbox field values specifically when exporting the data as labels (i.e.,
 #' when rawOrLabel=label) in flat format (i.e., when type=flat). When exporting
 #' labels, by default (without providing the exportCheckboxLabel flag or if
@@ -692,7 +694,7 @@ redcap_export_project_xml <-
 #' messages. If you do not pass in this flag, it will select the default format
 #' for you passed based on the 'format' flag you passed in or if no format flag
 #' was passed in, it will default to 'xml'.
-#' @param export_survey_fields true, false [default] - specifies whether or not
+#' @param export_survey_fields true, false `[default]` - specifies whether or not
 #' to export the survey identifier field (e.g., 'redcap_survey_identifier') or
 #' survey timestamp fields (e.g., instrument+'_timestamp') when surveys are
 #' utilized in the project. If you do not pass in this flag, it will default to
@@ -702,13 +704,13 @@ redcap_export_project_xml <-
 #' field or survey timestamp fields are imported via API data import, they will
 #' simply be ignored since they are not real fields in the project but rather
 #' are pseudo-fields.
-#' @param export_data_access_groups true, false [default] - specifies whether
+#' @param export_data_access_groups true, false `[default]` - specifies whether
 #' or not to export the 'redcap_data_access_group' field when data access
 #' groups are utilized in the project. If you do not pass in this flag, it will
 #' default to 'false'. NOTE: This flag is only viable if the user whose token
 #' is being used to make the API request is *not* in a data access group. If
 #' the user is in a group, then this flag will revert to its default value.
-#' @param filter_logic String of logic text (e.g., [age] > 30) for filtering
+#' @param filter_logic String of logic text (e.g., `[age]` > 30) for filtering
 #' the data to be returned by this API method, in which the API will only
 #' return the records (or record-events, if a longitudinal project) where the
 #' logic evaluates as TRUE. This parameter is blank/null by default unless a
@@ -734,7 +736,7 @@ redcap_export_project_xml <-
 #' native decimal format. Simply provide the value of either ',' or '.' for
 #' this parameter.
 #'
-#' @return httr::response() object
+#' @return [httr::response] object
 #' @export
 #'
 #' @examples \dontrun{
@@ -858,7 +860,7 @@ redcap_export_records <-
 #'  passed based on the 'format' flag you passed in or if no format flag was
 #'  passed in, it will default to 'xml'.
 #'
-#' @return httr::response() object containing the number of records deleted.
+#' @return [httr::response] object containing the number of records deleted.
 #' @export
 #'
 #' @examples
@@ -933,7 +935,7 @@ redcap_import_records <-
 #'  will be deleted from all arms in which they exist. Whereas, if arm is
 #'  provided, they will only be deleted from the specified arm.
 #'
-#' @return httr::response() object containing the number of records deleted.
+#' @return [httr::response] object containing the number of records deleted.
 #' @export
 #'
 #' @examples

@@ -19,7 +19,7 @@ project.}
 token is unique to each user for each project). See the section on the
 left-hand menu for obtaining a token for a given project.}
 
-\item{format}{csv, json, xml [default]}
+\item{format}{csv, json, xml \verb{[default]}}
 
 \item{return_format}{csv, json, xml - specifies the format of error messages.
 If you do not pass in this flag, it will select the default format for you
@@ -27,7 +27,7 @@ passed based on the 'format' flag you passed in or if no format flag was
 passed in, it will default to 'xml'.}
 }
 \value{
-httr::response() object containing DAGs for the project in the
+\link[httr:response]{httr::response} object containing DAGs for the project in the
 format specified
 }
 \description{

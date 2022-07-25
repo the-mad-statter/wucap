@@ -20,7 +20,7 @@ project.}
 token is unique to each user for each project). See the section on the
 left-hand menu for obtaining a token for a given project.}
 
-\item{format}{csv, json, xml [default]}
+\item{format}{csv, json, xml \verb{[default]}}
 
 \item{field}{A field's variable name. By default, all fields are returned,
 but if field is provided, then it will only the export field name(s) for
@@ -32,7 +32,7 @@ passed based on the 'format' flag you passed in or if no format flag was
 passed in, it will default to 'xml'.}
 }
 \value{
-httr::response() object containing Returns a list of the
+\link[httr:response]{httr::response} object containing Returns a list of the
 export/import-specific version of field names for all fields (or for one
 field, if desired) in a project in the format specified and ordered by their
 field order . The list that is returned will contain the three following
@@ -48,7 +48,7 @@ version of field names for all fields (or for one field, if desired) in a
 project. This is mostly used for checkbox fields because during data exports
 and data imports, checkbox fields have a different variable name used than
 the exact one defined for them in the Online Designer and Data Dictionary,
-in which *each checkbox option* gets represented as its own export field
+in which \emph{each checkbox option} gets represented as its own export field
 name in the following format: field_name + triple underscore + converted
 coded value for the choice. For non-checkbox fields, the export field name
 will be exactly the same as the original field name. Note: The following

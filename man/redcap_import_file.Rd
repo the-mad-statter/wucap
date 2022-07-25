@@ -41,7 +41,7 @@ passed based on the 'format' flag you passed in or if no format flag was
 passed in, it will default to 'xml'.}
 }
 \value{
-httr::response() object reporting empty body on successful upload
+\link[httr:response]{httr::response} object reporting empty body on successful upload
 }
 \description{
 This method allows you to upload a document that will be

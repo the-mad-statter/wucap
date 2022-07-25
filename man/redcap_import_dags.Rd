@@ -20,22 +20,22 @@ project.}
 token is unique to each user for each project). See the section on the
 left-hand menu for obtaining a token for a given project.}
 
-\item{format}{csv, json, xml [default]}
+\item{format}{csv, json, xml \verb{[default]}}
 
 \item{data}{Contains the attributes 'data_access_group_name'
 (referring to the group name) and 'unique_group_name'
 (referring to the auto-generated unique group name) of each DAG to be
 created/modified, in which they are provided in the specified format.
-1. JSON Example:
-\[{"data_access_group_name":"CA Site","unique_group_name":"ca_site"}
-{"data_access_group_name":"FL Site","unique_group_name":"fl_site"},
-{"data_access_group_name":"New Site","unique_group_name":""}\]
-2. CSV Example:
+\enumerate{
+\item JSON Example:
+\verb{[\{"data_access_group_name":"CA Site","unique_group_name":"ca_site"\} \{"data_access_group_name":"FL Site","unique_group_name":"fl_site"\}, \{"data_access_group_name":"New Site","unique_group_name":""\}]}
+\item CSV Example:
 data_access_group_name,unique_group_name
 "CA Site",ca_site
 "FL Site",fl_site
 "New Site",
-XML Example:
+#' XML Example:
+\out{
 <?xml version="1.0" encoding="UTF-8" ?>
 <dags>
   <item>
@@ -50,7 +50,9 @@ XML Example:
   <data_access_group_name>New Site</data_access_group_name>
   <unique_group_name></unique_group_name>
   </item>
-</dags>}
+</dags>
+}
+}}
 
 \item{return_format}{csv, json, xml - specifies the format of error messages.
 If you do not pass in this flag, it will select the default format for you
@@ -58,7 +60,7 @@ passed based on the 'format' flag you passed in or if no format flag was
 passed in, it will default to 'xml'.}
 }
 \value{
-httr::response() object containing number of DAGs added or updated
+\link[httr:response]{httr::response} object containing number of DAGs added or updated
 }
 \description{
 This method allows you to import new DAGs (Data Access Groups)

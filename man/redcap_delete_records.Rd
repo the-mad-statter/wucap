@@ -24,12 +24,12 @@ to delete}
 
 \item{arm}{the arm number of the arm in which the record(s) should be
 deleted. (This can only be used if the project is longitudinal with more than
- one arm.) NOTE: If the arm parameter is not provided, the specified records
- will be deleted from all arms in which they exist. Whereas, if arm is
- provided, they will only be deleted from the specified arm.}
+one arm.) NOTE: If the arm parameter is not provided, the specified records
+will be deleted from all arms in which they exist. Whereas, if arm is
+provided, they will only be deleted from the specified arm.}
 }
 \value{
-httr::response() object containing the number of records deleted.
+\link[httr:response]{httr::response} object containing the number of records deleted.
 }
 \description{
 Delete Records

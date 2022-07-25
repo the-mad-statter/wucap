@@ -31,7 +31,14 @@ store_credential_local <-
       readr::write_csv(path_credential, na = "", append = TRUE, quote = "all")
   }
 
-#' @inherit REDCapR::retrieve_credential
+#' Read a token and other credentials from a (non-REDCap) database or file
+#'
+#' @param project_id The ID assigned to the project withing REDCap.
+#' @param path_credential The file path to the CSV containing the credentials.
+#' @param ... arguments passed on to
+#' `
+#' REDCapR::[retrieve_credential_local][REDCapR::retrieve_credential_local]
+#' `
 #' @export
 retrieve_credential_local <-
   function(project_id,
@@ -58,7 +65,13 @@ edit_credential_local <-
     usethis::edit_file(path_credential)
   }
 
-#' @inherit REDCapR::redcap_read
+#' Read records from a REDCap project in subsets, and stacks them together
+#' before returning a dataset
+#'
+#' @param path_credential The file path to the CSV containing the credentials.
+#' @param project_id The ID assigned to the project withing REDCap.
+#' @param ... arguments passed on to
+#' `REDCapR::[redcap_read][REDCapR::redcap_read]`
 #' @export
 redcap_read <-
   function(project_id, path_credential = "~/.REDCapR", ...) {

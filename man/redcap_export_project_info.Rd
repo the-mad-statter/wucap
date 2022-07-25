@@ -27,7 +27,7 @@ passed based on the 'format' flag you passed in or if no format flag was
 passed in, it will default to 'xml'.}
 }
 \value{
-httr::response() object containing the project information
+\link[httr:response]{httr::response} object containing the project information
 }
 \description{
 Export Project Information
