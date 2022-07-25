@@ -22,6 +22,7 @@ Imports:
     jsonlite,
     readr,
     REDCapR,
+    rlang,
     shiny,
     shinyalert,
     stringr,
