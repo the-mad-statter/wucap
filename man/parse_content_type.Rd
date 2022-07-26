@@ -10,7 +10,7 @@ parse_content_type(content_type)
 \item{content_type}{content-type header from REDCap to be parsed}
 }
 \value{
-list containing type, name, and charset
+list containing mime type and parameters
 }
 \description{
 Parse Content Type

@@ -41,12 +41,12 @@ showtext::showtext_auto()
 library(hexSticker)
 sticker(subplot = paste0("man/figures/", params$package, "_logo.png"),
         s_x = 1,
-        s_y = 1.1,
-        s_width = 0.5,
-        s_height = 0.5,
+        s_y = 1.2,
+        s_width = 0.75,
+        s_height = 0.75,
         package  = params$package,
         p_x = 1,
-        p_y = 0.5,
+        p_y = 0.425,
         p_color = params$color,
         p_family = params$font,
         p_size = 18,
@@ -57,7 +57,7 @@ sticker(subplot = paste0("man/figures/", params$package, "_logo.png"),
         u_family = params$font,
         u_size = 3.5,
         u_x = 1.005,
-        u_y = 0.1,
+        u_y = 0.075,
         filename = paste0("man/figures/", params$package, "_hex.png"))
 ```
 

@@ -1,29 +1,3 @@
-#' REDCap API Endpoints
-#'
-#' Constants for various API endpoints
-redcap_api_endpoints <- list(
-  "prod" = list(
-    "v7" = "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/redcap/api/",
-    "latest" = "https://redcap.wustl.edu/redcap/api/"
-  )
-)
-
-#' REDCap Data Access Group Endpoints
-#'
-#' Constants for various DAG endpoints
-redcap_dag_endpoints <- list(
-  "prod" = list(
-    "v7" = paste0(
-      "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/",
-      "redcap/redcap_v7.3.5/DataAccessGroups/index.php?pid="
-    ),
-    "latest" = paste0(
-      "https://redcap.wustl.edu/redcap/redcap_v10.6.28/",
-      "index.php?route=DataAccessGroupsController:index&pid="
-    )
-  )
-)
-
 #' REDCap Array
 #'
 #' @param name name of the array
@@ -49,21 +23,38 @@ redcap_array <-
     return(a)
   }
 
+#' Check if argument is of type redcap_array
+#'
+#' @param x object to check
+assert_redcap_array <-
+  function(x) {
+    checkmate::assert_class(x, "redcap_array")
+  }
+
 #' Parse Content Type
 #'
 #' @param content_type content-type header from REDCap to be parsed
-#' @return list containing type, name, and charset
+#' @return list containing mime type and parameters
 parse_content_type <-
   function(content_type) {
-    parts <- stringr::str_remove_all(
-      stringr::str_trim(strsplit(content_type, ";")[[1]]),
-      '"'
+    content_type <- paste0("type=", content_type)
+
+    tokens <- stringr::str_remove_all(
+      stringr::str_trim(
+        stringr::str_split(content_type, ";")[[1]]
+      ),
+      "\""
     )
 
-    list(
-      "type" = parts[1],
-      "name" = stringr::str_remove(parts[2], "name="),
-      "charset" = stringr::str_remove(parts[3], "charset=")
+    as.list(
+      sapply(
+        strsplit(tokens, "="),
+        function(x) {
+          y <- x[2]
+          names(y) <- x[1]
+          y
+        }
+      )
     )
   }
 
@@ -129,12 +120,4 @@ validate_arg <-
       do.call(v, list(x = x))
     }
     x
-  }
-
-#' Check if argument is of type redcap_array
-#'
-#' @param x object to check
-assert_redcap_array <-
-  function(x) {
-    checkmate::assert_class(x, "redcap_array")
   }
