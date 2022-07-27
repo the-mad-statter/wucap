@@ -18,6 +18,48 @@ knitr::opts_chunk$set(
   out.width = "100%",
   eval = FALSE
 )
+
+make_under_development_badge <- 
+  function(github = params$github, 
+           package = params$package) {
+    sprintf(
+      paste0(
+        "[![Under Development]", 
+        "(https://img.shields.io/badge/status-under%%20development-red.svg)]", 
+        "(https://github.com/%s/%s)"
+      ), 
+      github, package
+    )
+  }
+
+make_last_commit_badge <- 
+  function(branch = "main", 
+           github = params$github, 
+           package = params$package) {
+    sprintf(
+      paste0(
+        "[![Last Commit]",
+        "(https://img.shields.io/github/last-commit/%s/%s.svg)]",
+        "(https://github.com/%s/%s/commits/%s)"
+      ), 
+      github, package, github, package, branch
+    )
+  }
+
+make_github_action_badge <- 
+  function(name, 
+           yaml = paste0(name, ".yaml"), 
+           github = params$github, 
+           package = params$package) {
+    sprintf(
+      paste0(
+        "[![%s]",
+        "(https://github.com/%s/%s/actions/workflows/%s/badge.svg)]", 
+        "(https://github.com/%s/%s/actions/workflows/%s)"
+      ), 
+      name, github, package, yaml, github, package, yaml
+    )
+  }
 ```
 
 ```{r sticker, eval=FALSE, include=FALSE}
@@ -64,12 +106,12 @@ sticker(subplot = paste0("man/figures/", params$package, "_logo.png"),
 # `r params$package` <img src="man/figures/`r params$package`_hex.png" align="right" width="125px" />
 
 <!-- badges: start -->
-[![Under Development](https://img.shields.io/badge/status-under%20development-red.svg)](https://github.com/`r params$github`/`r params$package`)
-[![Last Commit](https://img.shields.io/github/last-commit/`r params$github`/`r params$package`.svg)](https://github.com/`r params$github`/`r params$package`/commits/main)
-[![style](https://github.com/`r params$github`/`r params$package`/actions/workflows/style.yaml/badge.svg)](https://github.com/`r params$github`/`r params$package`/actions/workflows/style.yaml)
-[![lint](https://github.com/`r params$github`/`r params$package`/actions/workflows/lint.yaml/badge.svg)](https://github.com/`r params$github`/`r params$package`/actions/workflows/lint.yaml)
-[![test-coverage](https://github.com/`r params$github`/`r params$package`/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/`r params$github`/`r params$package`/actions/workflows/test-coverage.yaml)
-[![R-CMD-check](https://github.com/`r params$github`/`r params$package`/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/`r params$github`/`r params$package`/actions/workflows/R-CMD-check.yaml)
+`r make_under_development_badge()`
+`r make_last_commit_badge()`
+`r make_github_action_badge("style")`
+`r make_github_action_badge("lint-project")`
+`r make_github_action_badge("test-coverage")`
+`r make_github_action_badge("R-CMD-check")`
 <!-- badges: end -->
 
 ## Overview

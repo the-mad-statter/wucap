@@ -10,7 +10,7 @@ Development](https://img.shields.io/badge/status-under%20development-red.svg)](h
 [![Last
 Commit](https://img.shields.io/github/last-commit/the-mad-statter/wucap.svg)](https://github.com/the-mad-statter/wucap/commits/main)
 [![style](https://github.com/the-mad-statter/wucap/actions/workflows/style.yaml/badge.svg)](https://github.com/the-mad-statter/wucap/actions/workflows/style.yaml)
-[![lint](https://github.com/the-mad-statter/wucap/actions/workflows/lint.yaml/badge.svg)](https://github.com/the-mad-statter/wucap/actions/workflows/lint.yaml)
+[![lint-project](https://github.com/the-mad-statter/wucap/actions/workflows/lint-project.yaml/badge.svg)](https://github.com/the-mad-statter/wucap/actions/workflows/lint-project.yaml)
 [![test-coverage](https://github.com/the-mad-statter/wucap/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/the-mad-statter/wucap/actions/workflows/test-coverage.yaml)
 [![R-CMD-check](https://github.com/the-mad-statter/wucap/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/the-mad-statter/wucap/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
