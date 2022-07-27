@@ -109,7 +109,7 @@ sticker(subplot = paste0("man/figures/", params$package, "_logo.png"),
 `r make_under_development_badge()`
 `r make_last_commit_badge()`
 `r make_github_action_badge("style")`
-`r make_github_action_badge("lint-project")`
+`r make_github_action_badge("lint")`
 `r make_github_action_badge("test-coverage")`
 `r make_github_action_badge("R-CMD-check")`
 <!-- badges: end -->

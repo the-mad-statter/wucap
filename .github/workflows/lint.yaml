@@ -6,10 +6,10 @@ on:
   pull_request:
     branches: [main, master]
 
-name: lint-project
+name: lint
 
 jobs:
-  lint-project:
+  lint:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -20,10 +20,11 @@ jobs:
         with:
           use-public-rspm: true
 
-      - name: Install lintr
-        run: install.packages("lintr")
-        shell: Rscript {0}
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::lintr, local::.
+          needs: lint
 
-      - name: Lint root directory
-        run: lintr::lint_dir()
+      - name: Lint
+        run: lintr::lint_package()
         shell: Rscript {0}
