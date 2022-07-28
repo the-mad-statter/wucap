@@ -7,7 +7,7 @@ output:
     css: redcap_project_migration_app/edu.wustl.ohids.css
   rmarkdown::pdf_document: default
 vignette: >
-  %\VignetteIndexEntry{redcap_project_migration_app}
+  %\VignetteIndexEntry{REDCap Project Migration App}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -105,4 +105,4 @@ The dialog box will give a link to the DAG definition page in the source project
 
 Once all DAGs have been defined click the OK button. If no DAGs need be defined, just click OK.
 
-The app will then migrate the data in batches from source to destination and also migrate individual file uploads (and signatures).
+The app will then migrate the data in batches from source to destination and also migrate both file uploads and signatures individually.
