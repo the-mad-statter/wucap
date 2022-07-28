@@ -22,6 +22,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r setup}
+library(wucap)
+```
+
 # Background
 
 [Washington University in Saint Louis](https://wustl.edu/) (WUSTL) maintains a legacy [REDCap](https://www.project-redcap.org/) instance frozen at v7.3.5 due to undocumented modification of the codebase to support home-grown features. Migration of active projects from legacy to current production and archival of inactive projects are desirable due to failing hardware.
@@ -97,7 +101,7 @@ Some projects make use of data access groups (DAGs). Unfortunately, such definit
 
 ![](redcap_project_migration_app/app_dag_dialog.png)
 
-The dialog box will give a link to the DAG definition page in the source project and a link to the DAG definition page in the destination project. Each DAG name must be entered into the destination project.
+The dialog box will give a link to the DAG definition page in the source project and a link to the DAG definition page in the destination project. Each DAG name in the source project must be entered into the destination project.
 
 Once all DAGs have been defined click the OK button. If no DAGs need be defined, just click OK.
 
