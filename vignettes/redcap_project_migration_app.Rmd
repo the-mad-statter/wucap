@@ -103,6 +103,6 @@ Some projects make use of data access groups (DAGs). Unfortunately, such definit
 
 The dialog box will give a link to the DAG definition page in the source project and a link to the DAG definition page in the destination project. Each DAG name must be entered into the destination project.
 
-Once all DAGs have been defined (including cases where no DAGs need be defined), click the OK button.
+Once all DAGs have been defined click the OK button. If no DAGs need be defined, just click OK.
 
 The app will then migrate the data in batches from source to destination and also migrate individual file uploads (and signatures).
