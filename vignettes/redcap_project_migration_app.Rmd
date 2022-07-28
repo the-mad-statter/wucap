@@ -22,10 +22,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(wucap)
-```
-
 # Background
 
 [Washington University in Saint Louis](https://wustl.edu/) (WUSTL) maintains a legacy [REDCap](https://www.project-redcap.org/) instance frozen at v7.3.5 due to undocumented modification of the codebase to support home-grown features. Migration of active projects from legacy to current production and archival of inactive projects are desirable due to failing hardware.
