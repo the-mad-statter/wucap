@@ -4,7 +4,8 @@ on:
   push:
     paths:
       - '**.Rmd'
-      - '!**/vignettes/*.Rmd'
+      - '!vignettes/*.Rmd'
+      - '!docs_src/*.Rmd'
 
 name: render-rmarkdown
 

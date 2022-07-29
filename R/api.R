@@ -466,6 +466,55 @@ redcap_create_project <-
     httr::POST(redcap_uri, body = body, encode = "form")
   }
 
+#' Import Project Information
+#'
+#' @param redcap_uri The URI (uniform resource identifier) of the REDCap
+#' project.
+#' @param token The Super API Token specific to a user
+#' @param format format of the data argument
+#' @param data Contains some or all of the attributes from Export Project
+#' Information in the same data format as in the export. These attributes will
+#' change the project information. Attributes for the project in the format
+#' specified. For any values that are boolean, they should be represented as
+#' either a '0' (no/false) or '1' (yes/true). The following project attributes
+#' can be udpated: project_title, project_language, purpose, purpose_other,
+#' project_notes, custom_record_label, secondary_unique_field, is_longitudinal,
+#' surveys_enabled, scheduling_enabled, record_autonumbering_enabled,
+#' randomization_enabled, project_irb_number, project_grant_number,
+#' project_pi_firstname, project_pi_lastname, display_today_now_button
+#'
+#' @return Returns the number of values accepted to be updated in the project
+#' settings (including values which remained the same before and after the
+#' import).
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' redcap_export_project_info(token = my_src_token) %>%
+#'   httr::content() %>%
+#'   as.character() -> xml_string_of_source_info
+#'
+#' redcap_import_project_info(
+#'   token = my_dst_token,
+#'   data = xml_string_of_source_info
+#' ) %>%
+#'   httr::content(as = "text")
+#' }
+redcap_import_project_info <-
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
+           token,
+           format = c("xml", "csv", "json"),
+           data) {
+    body <- list(
+      "token" = token,
+      "content" = "project_settings",
+      "format" = match.arg(format),
+      data = data
+    )
+
+    httr::POST(redcap_uri, body = body, encode = "form")
+  }
+
 #' Export Project Information
 #'
 #' @param redcap_uri The URI (uniform resource identifier) of the REDCap
@@ -674,12 +723,12 @@ redcap_export_project_xml <-
 #' @param raw_or_label_headers raw `[default]`, label - (for 'csv' format 'flat'
 #' type only) for the CSV headers, export the variable/field names (raw) or the
 #' field labels (label)
-#' @param export_checkbox_label true, false `[default]` - specifies the format of
-#' checkbox field values specifically when exporting the data as labels (i.e.,
-#' when rawOrLabel=label) in flat format (i.e., when type=flat). When exporting
-#' labels, by default (without providing the exportCheckboxLabel flag or if
-#' exportCheckboxLabel=false), all checkboxes will either have a value
-#' 'Checked' if they are checked or 'Unchecked' if not checked. But if
+#' @param export_checkbox_label true, false `[default]` - specifies the format
+#' of checkbox field values specifically when exporting the data as labels
+#' (i.e., when rawOrLabel=label) in flat format (i.e., when type=flat). When
+#' exporting labels, by default (without providing the exportCheckboxLabel
+#' flag or if exportCheckboxLabel=false), all checkboxes will either have a
+#' value Checked' if they are checked or 'Unchecked' if not checked. But if
 #' exportCheckboxLabel is set to true, it will instead export the checkbox
 #' value as the checkbox option's label (e.g., 'Choice 1') if checked or it
 #' will be blank/empty (no value) if not checked. If rawOrLabel=false or if
@@ -694,9 +743,9 @@ redcap_export_project_xml <-
 #' messages. If you do not pass in this flag, it will select the default format
 #' for you passed based on the 'format' flag you passed in or if no format flag
 #' was passed in, it will default to 'xml'.
-#' @param export_survey_fields true, false `[default]` - specifies whether or not
-#' to export the survey identifier field (e.g., 'redcap_survey_identifier') or
-#' survey timestamp fields (e.g., instrument+'_timestamp') when surveys are
+#' @param export_survey_fields true, false `[default]` - specifies whether or
+#' not to export the survey identifier field (e.g., 'redcap_survey_identifier')
+#' or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are
 #' utilized in the project. If you do not pass in this flag, it will default to
 #' 'false'. If set to 'true', it will return the redcap_survey_identifier field
 #' and also the survey timestamp field for a particular survey when at least
