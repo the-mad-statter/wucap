@@ -14,4 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 [REDCap Project Migration App Vignette](redcap_project_migration_app.html)
 
+[REDCap Project Migration App 2 Vignette](redcap_project_migration_app2.html)
+
 </center>

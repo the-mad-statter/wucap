@@ -1,5 +1,5 @@
 ---
-title: "REDCap Project Migration App"
+title: "REDCap Project Migration App 2"
 output: 
   rmarkdown::html_document:
     toc: TRUE
@@ -7,7 +7,7 @@ output:
     css: redcap_project_migration_app/edu.wustl.ohids.css
   rmarkdown::pdf_document: default
 vignette: >
-  %\VignetteIndexEntry{REDCap Project Migration App}
+  %\VignetteIndexEntry{REDCap Project Migration App 2}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -34,7 +34,7 @@ Upgrading REDCap in place is best practice but was never possible due to the cod
 
 Therefore, we are reduced to migrating projects in parts either using the web or application programming interface (API). The web interface approach is tedious (especially when file uploads are present), and using the API is our best option.
 
-The `redcap_project_migration_app` [{shiny}](https://shiny.rstudio.com/) app was written to help automate as much of the migration process as possible using the API in an easy to use form.
+The `redcap_project_migration_app2` [{shiny}](https://shiny.rstudio.com/) app was written to help automate as much of the migration process as possible using the API in an easy to use form.
 
 # Where to Run
 
@@ -67,29 +67,25 @@ The above command installs the package to ephemeral storage along with its depen
 To use the app run the following command in a Databricks workbook R cell:
 
 ```
-wucap::redcap_project_migration_app()
+wucap::redcap_project_migration_app2()
 ```
 
 This command will produce a clickable link to open the app in a new tab:
 
-![](redcap_project_migration_app/app_run_code_with_link.png)
+![](redcap_project_migration_app/app2_run_code_with_link.png)
 
 Clicking on the link will open a new tab containing the app:
 
-![](redcap_project_migration_app/app_start.png)
+![](redcap_project_migration_app/app2_start.png)
 
 ## 2. Enter Tokens and Start Migration
 
 The app requires:
 
-1. A project-level (i.e., regular) API token for the given user with full export rights from the source project.
-2. A super-user API token from the REDCap destination instance.
+1. A project-level API token for the given user with full export rights from the source project.
+2. A project-level API token for the given user with full import rights from the destination project.
 
-The app will utilize api calls on the user's behalf to create a new project on the destination REDCap instance and copy over the following information:
-
-1. Project attributes such as title, purpose, and if the project is longitudinal
-2. Data dictionary including field names, labels, and types as well as branching logic
-3. Arms, named events, and repeated events
+The app will utilize api calls on the user's behalf to copy over project attributes such as title, purpose, and if the project is longitudinal to a manually created project on the destination instance that used a metadata only xml export from the source project.
 
 ## 3. Data Access Group Definitions
 
