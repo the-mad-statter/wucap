@@ -1,0 +1,17 @@
+---
+title: ""
+output: 
+  rmarkdown::html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<center>
+
+![](../man/figures/wucap_hex.png)
+
+[REDCap Project Migration App Vignette](redcap_project_migration_app.html)
+
+</center>

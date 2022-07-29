@@ -12,14 +12,6 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
 ---
 
-```{r render_to_docs, eval=FALSE}
-rmarkdown::render(
-  "redcap_project_migration_app.Rmd",
-  output_format = "html_document",
-  output_dir = "../docs"
-)
-```
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   echo = FALSE,
