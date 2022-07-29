@@ -22,6 +22,14 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r, eval=FALSE}
+rmarkdown::render(
+  "redcap_project_migration_app.Rmd",
+  output_format = "all"
+)
+```
+
+
 ```{r setup}
 library(wucap)
 ```
