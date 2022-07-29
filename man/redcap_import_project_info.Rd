@@ -40,6 +40,7 @@ Import Project Information
 }
 \examples{
 \dontrun{
+## xml
 redcap_export_project_info(token = my_src_token) \%>\%
   httr::content() \%>\%
   as.character() -> xml_string_of_source_info
@@ -47,6 +48,20 @@ redcap_export_project_info(token = my_src_token) \%>\%
 redcap_import_project_info(
   token = my_dst_token,
   data = xml_string_of_source_info
+) \%>\%
+  httr::content(as = "text")
+
+## json
+redcap_export_project_info(
+  token = my_src_token,
+  format = "json"
+) \%>\%
+  httr::content() -> list_of_source_info
+
+redcap_import_project_info(
+  token = my_dst_token,
+  format = "json",
+  data = jsonlite::toJSON(list_of_source_info, auto_unbox = TRUE)
 ) \%>\%
   httr::content(as = "text")
 }

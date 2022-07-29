@@ -66,12 +66,12 @@ labels for the options of multiple choice fields}
 type only) for the CSV headers, export the variable/field names (raw) or the
 field labels (label)}
 
-\item{export_checkbox_label}{true, false \verb{[default]} - specifies the format of
-checkbox field values specifically when exporting the data as labels (i.e.,
-when rawOrLabel=label) in flat format (i.e., when type=flat). When exporting
-labels, by default (without providing the exportCheckboxLabel flag or if
-exportCheckboxLabel=false), all checkboxes will either have a value
-'Checked' if they are checked or 'Unchecked' if not checked. But if
+\item{export_checkbox_label}{true, false \verb{[default]} - specifies the format
+of checkbox field values specifically when exporting the data as labels
+(i.e., when rawOrLabel=label) in flat format (i.e., when type=flat). When
+exporting labels, by default (without providing the exportCheckboxLabel
+flag or if exportCheckboxLabel=false), all checkboxes will either have a
+value Checked' if they are checked or 'Unchecked' if not checked. But if
 exportCheckboxLabel is set to true, it will instead export the checkbox
 value as the checkbox option's label (e.g., 'Choice 1') if checked or it
 will be blank/empty (no value) if not checked. If rawOrLabel=false or if
@@ -88,9 +88,9 @@ messages. If you do not pass in this flag, it will select the default format
 for you passed based on the 'format' flag you passed in or if no format flag
 was passed in, it will default to 'xml'.}
 
-\item{export_survey_fields}{true, false \verb{[default]} - specifies whether or not
-to export the survey identifier field (e.g., 'redcap_survey_identifier') or
-survey timestamp fields (e.g., instrument+'_timestamp') when surveys are
+\item{export_survey_fields}{true, false \verb{[default]} - specifies whether or
+not to export the survey identifier field (e.g., 'redcap_survey_identifier')
+or survey timestamp fields (e.g., instrument+'_timestamp') when surveys are
 utilized in the project. If you do not pass in this flag, it will default to
 'false'. If set to 'true', it will return the redcap_survey_identifier field
 and also the survey timestamp field for a particular survey when at least

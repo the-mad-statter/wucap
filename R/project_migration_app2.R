@@ -79,9 +79,7 @@ redcap_project_migration_app2 <-
             redcap_uri = redcap_uri_dst,
             token = input$token_dst,
             format = "json",
-            data = paste0(
-              "[", jsonlite::toJSON(project_info_src, auto_unbox = TRUE), "]"
-            )
+            data = jsonlite::toJSON(project_info_src, auto_unbox = TRUE)
           )
 
           # read the source project info to get pid
