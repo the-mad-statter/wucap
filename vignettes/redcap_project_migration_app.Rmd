@@ -30,7 +30,7 @@ library(wucap)
 
 [Washington University in Saint Louis](https://wustl.edu/) (WUSTL) maintains a legacy [REDCap](https://www.project-redcap.org/) instance frozen at v7.3.5 due to undocumented modification of the codebase to support home-grown features. Migration of active projects from legacy to current production and archival of inactive projects are desirable due to failing hardware.
 
-Upgrading REDCap in place is best practice but was never possible due to the codebase modifications. The next best approach is export and import of a [CDISC](https://www.cdisc.org/) Operational Data Model (ODM) extensible markup language (XML) file, but this fails for some projects because current production fails to import large XML files.
+Upgrading REDCap in place is best practice but was never possible due to the codebase modifications. The next best approach is export and import of a [CDISC](https://www.cdisc.org/) Operational Data Model (ODM) extensible markup language (XML) file, but this fails for some projects because current production is unable to import large XML files.
 
 Therefore, we are reduced to migrating projects in parts either using the web or application programming interface (API). The web interface approach is tedious (especially when file uploads are present), and using the API is our best option.
 
