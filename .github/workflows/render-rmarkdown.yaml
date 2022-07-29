@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - '**.Rmd'
-      - '!**/redcap_project_migration_app.Rmd'
+      - '!**/vignettes/*.Rmd'
 
 name: render-rmarkdown
 

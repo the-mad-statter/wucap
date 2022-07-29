@@ -12,6 +12,14 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
 ---
 
+```{r render_to_docs, eval=FALSE}
+rmarkdown::render(
+  "redcap_project_migration_app.Rmd",
+  output_format = "html_document",
+  output_dir = "../docs"
+)
+```
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   echo = FALSE,
@@ -21,14 +29,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
-```{r, eval=FALSE}
-rmarkdown::render(
-  "redcap_project_migration_app.Rmd",
-  output_format = "all"
-)
-```
-
 
 ```{r setup}
 library(wucap)
@@ -113,4 +113,4 @@ The dialog box will give a link to the DAG definition page in the source project
 
 Once all DAGs have been defined click the OK button. If no DAGs need be defined, just click OK.
 
-The app will then migrate the data in batches from source to destination and also migrate both file uploads and signatures individually.
+The app will then migrate the data in batches from source to destination and also migrate both file uploads and signatures one after another.
