@@ -34,6 +34,11 @@ jobs:
           install.packages("rmarkdown")
         shell: Rscript {0}
 
+      - name: Install remotes
+        run: |
+          install.packages("remotes")
+        shell: Rscript {0}
+
       - name: Install wucap
         run: |
           remotes::install_github("the-mad-statter/wucap")
