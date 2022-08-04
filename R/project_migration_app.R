@@ -64,8 +64,9 @@ redcap_project_migration_app <-
           difftime(last_event_time(), units = "mins") %>%
           as.numeric() -> idle_minutes
 
-        if(idle_minutes > 60)
+        if (idle_minutes > 60) {
           shiny::stopApp()
+        }
       })
 
       session$onSessionEnded(function() {
