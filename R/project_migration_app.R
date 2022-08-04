@@ -53,6 +53,21 @@ redcap_project_migration_app <-
     }
 
     server <- function(input, output, session) {
+      last_event_time <- shiny::reactiveVal(Sys.time())
+
+      compute_idle_time <- shiny::reactiveTimer(15 * 60 * 1000) # 15 min
+
+      shiny::observe({
+        compute_idle_time()
+
+        Sys.time() %>%
+          difftime(last_event_time(), units = "mins") %>%
+          as.numeric() -> idle_minutes
+
+        if(idle_minutes > 60)
+          shiny::stopApp()
+      })
+
       session$onSessionEnded(function() {
         shiny::stopApp()
       })
@@ -62,6 +77,8 @@ redcap_project_migration_app <-
       )
 
       shiny::observeEvent(input$migrate, {
+        last_event_time(Sys.time())
+
         shiny::withProgress({
           shiny::setProgress(0.00, "Initiating migration...")
           Sys.sleep(3)
@@ -109,6 +126,8 @@ redcap_project_migration_app <-
             httr::content()
 
           Sys.sleep(3)
+
+          last_event_time(Sys.time())
         })
 
         # data access groups definitions cannot be exported from v7 via the api
@@ -140,6 +159,8 @@ redcap_project_migration_app <-
 
       # after dags have been dealt with
       shiny::observeEvent(input$dags_defined, {
+        last_event_time(Sys.time())
+
         shiny::withProgress({
           # export records
           shiny::setProgress(0.35, "Exporting records from source...")
@@ -150,6 +171,8 @@ redcap_project_migration_app <-
             export_data_access_groups = TRUE
           )$data
 
+          last_event_time(Sys.time())
+
           # import records
           shiny::setProgress(0.45, "Importing records to destination...")
           REDCapR::redcap_write(
@@ -157,6 +180,8 @@ redcap_project_migration_app <-
             redcap_uri = redcap_uri_dst,
             token = rvs$token_dst
           )
+
+          last_event_time(Sys.time())
 
           # read the data dictionary to:
           # a) identify fields of type file
@@ -272,6 +297,8 @@ redcap_project_migration_app <-
                   "Uploading file: %s...", basename(r_export$content[[1]])
                 )
               )
+
+              last_event_time(Sys.time())
             }
           }
 

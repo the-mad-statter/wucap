@@ -55,11 +55,28 @@ redcap_project_migration_app2 <-
     }
 
     server <- function(input, output, session) {
+      last_event_time <- shiny::reactiveVal(Sys.time())
+
+      compute_idle_time <- shiny::reactiveTimer(15 * 60 * 1000) # 15 min
+
+      shiny::observe({
+        compute_idle_time()
+
+        Sys.time() %>%
+          difftime(last_event_time(), units = "mins") %>%
+          as.numeric() -> idle_minutes
+
+        if(idle_minutes > 60)
+          shiny::stopApp()
+      })
+
       session$onSessionEnded(function() {
         shiny::stopApp()
       })
 
       shiny::observeEvent(input$migrate, {
+        last_event_time(Sys.time())
+
         shiny::withProgress({
           shiny::setProgress(0.00, "Initiating migration...")
           Sys.sleep(3)
@@ -119,10 +136,14 @@ redcap_project_migration_app2 <-
           html = TRUE,
           inputId = "dags_defined"
         )
+
+        last_event_time(Sys.time())
       })
 
       # after dags have been dealt with
       shiny::observeEvent(input$dags_defined, {
+        last_event_time(Sys.time())
+
         shiny::withProgress({
           # export records
           shiny::setProgress(0.30, "Exporting records from source...")
@@ -133,6 +154,8 @@ redcap_project_migration_app2 <-
             export_data_access_groups = TRUE
           )$data
 
+          last_event_time(Sys.time())
+
           # import records
           shiny::setProgress(0.45, "Importing records to destination...")
           REDCapR::redcap_write(
@@ -140,6 +163,8 @@ redcap_project_migration_app2 <-
             redcap_uri = redcap_uri_dst,
             token = input$token_dst
           )
+
+          last_event_time(Sys.time())
 
           # read the data dictionary to:
           # a) identify fields of type file
@@ -255,6 +280,8 @@ redcap_project_migration_app2 <-
                   "Uploading file: %s...", basename(r_export$content[[1]])
                 )
               )
+
+              last_event_time(Sys.time())
             }
           }
 
