@@ -48,7 +48,7 @@ redcap_dag_endpoints <- list(
     ),
     "v12.4.31" = paste0(
       "https://redcap.wustl.edu/redcap/redcap_v12.4.31/",
-     "index.php?route=DataAccessGroupsController:index&pid="
+      "index.php?route=DataAccessGroupsController:index&pid="
     ),
     "latest" = paste0(
       "https://redcap.wustl.edu/redcap/redcap_v12.4.31/",
