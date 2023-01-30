@@ -12,6 +12,8 @@ redcap_import_file(
   event,
   repeat_instance,
   file,
+  type = NULL,
+  name = NULL,
   return_format = c("xml", "csv", "json")
 )
 }
@@ -34,6 +36,10 @@ The repeat instance number of the repeating event (if longitudinal) or the
 repeating instrument (if classic or longitudinal). Default value is '1'.}
 
 \item{file}{path to the file to upload}
+
+\item{type}{MIME content-type of the file.}
+
+\item{name}{file name to use for the upload}
 
 \item{return_format}{csv, json, xml - specifies the format of error messages.
 If you do not pass in this flag, it will select the default format for you

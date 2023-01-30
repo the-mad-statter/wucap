@@ -222,6 +222,7 @@ redcap_export_field_names <-
 #' @param repeat_instance (only for projects with repeating instruments/events)
 #' The repeat instance number of the repeating event (if longitudinal) or the
 #' repeating instrument (if classic or longitudinal). Default value is '1'.
+#' @param path directory in which to write the download
 #' @param return_format csv, json, xml - specifies the format of error messages.
 #' If you do not pass in this flag, it will select the default format for you
 #' passed based on the 'format' flag you passed in or if no format flag was
@@ -247,6 +248,7 @@ redcap_export_file <-
            field,
            event,
            repeat_instance,
+           path = tempdir(),
            return_format = c("xml", "csv", "json")) {
     body <- list(
       "token" = token,
@@ -261,31 +263,12 @@ redcap_export_file <-
       "returnFormat" = match.arg(return_format)
     )
 
-    # write to temp file because do not know name yet
-    tmp <- tempfile()
-    r <- httr::POST(
+    httr::POST(
       redcap_uri,
       body = body,
       encode = "form",
-      httr::write_disk(tmp)
+      httr::write_disk(tempfile("", path, ".rcf"))
     )
-
-    # retrieve the desired file name from header and construct absolute path
-    fname <- parse_content_type(r[["headers"]][["content-type"]])[["name"]]
-    fpath <- gsub("\\\\", "/", file.path(tempdir(), fname))
-
-    # rename temp file to desired
-    file.rename(r$content[[1]], fpath)
-
-    # edit httr response object to reflect new download name
-    content_type <- sub(basename(tmp), fname, r[["headers"]][["content-type"]])
-    attr(fpath, "class") <- "path"
-    r[["headers"]][["content-type"]] <- content_type
-    r[["all_headers"]][[1]][["headers"]][["content-type"]] <- content_type
-    r[["content"]] <- fpath
-    r[["request"]][["output"]][["path"]] <- fpath[[1]]
-
-    r
   }
 
 #' Import a File
@@ -311,6 +294,8 @@ redcap_export_file <-
 #' The repeat instance number of the repeating event (if longitudinal) or the
 #' repeating instrument (if classic or longitudinal). Default value is '1'.
 #' @param file path to the file to upload
+#' @param type MIME content-type of the file.
+#' @param name file name to use for the upload
 #' @param return_format csv, json, xml - specifies the format of error messages.
 #' If you do not pass in this flag, it will select the default format for you
 #' passed based on the 'format' flag you passed in or if no format flag was
@@ -337,7 +322,10 @@ redcap_import_file <-
            event,
            repeat_instance,
            file,
-           return_format = c("xml", "csv", "json")) {
+           type = NULL,
+           name = NULL,
+           return_format = c("xml", "csv", "json")
+  ) {
     body <- list(
       "token" = token,
       "content" = "file",
@@ -348,7 +336,7 @@ redcap_import_file <-
       "repeat_instance" = validate_arg(repeat_instance,
         v = checkmate::check_integer
       ),
-      "file" = httr::upload_file(file),
+      "file" = curl::form_file(path = file, type = type, name = name),
       "returnFormat" = match.arg(return_format)
     )
 
@@ -358,6 +346,104 @@ redcap_import_file <-
 ## Instruments -----------------------------------------------------------------
 
 ## Metadata --------------------------------------------------------------------
+
+#' Export Metadata (Data Dictionary)
+#'
+#' @description This method allows you to export the metadata for a project.
+#'
+#' @note To use this method, you must have API Export privileges in the project.
+#'
+#' @param redcap_uri The URI (uniform resource identifier) of the REDCap
+#' project.
+#' @param token The API token specific to your REDCap project and username (each
+#'  token is unique to each user for each project). See the section on the
+#'  left-hand menu for obtaining a token for a given project.
+#' @param format csv, json, xml `[default]`
+#' @param fields an array of field names specifying specific fields you wish to
+#' pull (by default, all metadata is pulled)
+#' @param forms an array of form names specifying specific data collection
+#' instruments for which you wish to pull metadata (by default, all metadata is
+#' pulled). NOTE: These 'forms' are not the form label values that are seen on
+#' the webpages, but instead they are the unique form names seen in Column B of
+#' the data dictionary.
+#' @param return_format csv, json, xml - specifies the format of error messages.
+#' If you do not pass in this flag, it will select the default format for you
+#' passed based on the 'format' flag you passed in or if no format flag was
+#' passed in, it will default to 'xml'.
+#'
+#' @return [httr::response] object containing Metadata from the project (i.e.
+#' Data Dictionary values) in the format specified ordered by the field order.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' export_metadata(token = my_token, format = "csv")
+#' }
+export_metadata <-
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
+           token,
+           format = c("xml", "csv", "json"),
+           fields = NULL,
+           forms = NULL,
+           return_format = c("xml", "csv", "json")
+  ) {
+    body <- list(
+      "token" = token,
+      "content" = "metadata",
+      "format" = match.arg(format),
+      "fields" = fields,
+      "forms" = forms,
+      "returnFormat" = match.arg(return_format)
+    )
+
+    httr::POST(redcap_uri, body = body, encode = "multipart")
+  }
+
+#' Import Metadata (Data Dictionary)
+#'
+#' @description This method allows you to import metadata (i.e., Data
+#' Dictionary) into a project. Notice: Because of this method's destructive
+#' nature, it is only available for use for projects in Development status.
+#'
+#' @note To use this method, you must have API Import/Update privileges *and*
+#' Project Design/Setup privileges in the project.
+#'
+#' @param redcap_uri The URI (uniform resource identifier) of the REDCap
+#' project.
+#' @param token The API token specific to your REDCap project and username (each
+#'  token is unique to each user for each project). See the section on the
+#'  left-hand menu for obtaining a token for a given project.
+#' @param format csv, json, xml `[default]`
+#' @param data The formatted data to be imported.
+#' @param return_format csv, json, xml - specifies the format of error messages.
+#' If you do not pass in this flag, it will select the default format for you
+#' passed based on the 'format' flag you passed in or if no format flag was
+#' passed in, it will default to 'xml'.
+#'
+#' @return [httr::response] object containing the number of fields imported.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' import_metadata(token = my_token, format = "csv", data = "")
+#' }
+import_metadata <-
+  function(redcap_uri = redcap_api_endpoints$prod$latest,
+           token,
+           format = c("xml", "csv", "json"),
+           data,
+           return_format = c("xml", "csv", "json")
+  ) {
+    body <- list(
+      "token" = token,
+      "content" = "metadata",
+      "format" = match.arg(format),
+      "data" = data,
+      "returnFormat" = match.arg(return_format)
+    )
+
+    httr::POST(redcap_uri, body = body, encode = "multipart")
+  }
 
 ## Projects --------------------------------------------------------------------
 

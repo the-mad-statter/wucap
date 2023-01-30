@@ -11,6 +11,7 @@ redcap_export_file(
   field,
   event,
   repeat_instance,
+  path = tempdir(),
   return_format = c("xml", "csv", "json")
 )
 }
@@ -31,6 +32,8 @@ left-hand menu for obtaining a token for a given project.}
 \item{repeat_instance}{(only for projects with repeating instruments/events)
 The repeat instance number of the repeating event (if longitudinal) or the
 repeating instrument (if classic or longitudinal). Default value is '1'.}
+
+\item{path}{directory in which to write the download}
 
 \item{return_format}{csv, json, xml - specifies the format of error messages.
 If you do not pass in this flag, it will select the default format for you

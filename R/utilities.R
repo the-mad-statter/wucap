@@ -89,7 +89,7 @@ read_project_xml <-
 
 #' Write Project XML
 #'
-#' @param r httr response obejct from redcap_export_project_xml()
+#' @param r httr response object from redcap_export_project_xml()
 #' @param file file or connection to write to
 #'
 #' @export

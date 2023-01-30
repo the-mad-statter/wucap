@@ -7,7 +7,7 @@
 write_project_xml(r, file)
 }
 \arguments{
-\item{r}{httr response obejct from redcap_export_project_xml()}
+\item{r}{httr response object from redcap_export_project_xml()}
 
 \item{file}{file or connection to write to}
 }

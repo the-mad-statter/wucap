@@ -5,7 +5,7 @@
 \alias{redcap_dag_endpoints}
 \title{REDCap Data Access Group Endpoints}
 \format{
-An object of class \code{list} of length 1.
+An object of class \code{list} of length 3.
 }
 \usage{
 redcap_dag_endpoints

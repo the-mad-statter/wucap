@@ -12,14 +12,14 @@ Description: This package provides helpful functions for interacting with
     REDCap instances at WashU.
 License: GPL (>= 3)
 Encoding: UTF-8
-LazyData: true
 URL: https://github.com/the-mad-statter/wucap
 BugReports: https://github.com/the-mad-statter/wucap/issues
 Imports: 
     checkmate,
+    curl,
     httr,
     jsonlite,
-    magrittr,
+    progress,
     purrr,
     readr,
     REDCapR,
@@ -28,7 +28,7 @@ Imports:
     shinyalert,
     stringr,
     usethis
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Suggests: 
     knitr,
     rmarkdown,
