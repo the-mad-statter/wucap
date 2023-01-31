@@ -50,9 +50,9 @@ Export Files
 \dontrun{
 file_index <-
   redcap_export_files(
-  token = my_token
-  file_keys = file_keys,
-  repo = "~/redcap_download_files"
-)
+    token = my_token,
+    file_keys = file_keys,
+    repo = "~/redcap_download_files"
+  )
 }
 }

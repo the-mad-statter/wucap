@@ -12,12 +12,14 @@
 #' intended name of the file. For others see [httr::content()].
 #' @export
 httr_content <- function(x, as = NULL, ...) {
-  if(!is.null(as)) {
-    if(as == "file_path")
+  if (!is.null(as)) {
+    if (as == "file_path") {
       return(x$content)
+    }
 
-    if(as == "file_name")
+    if (as == "file_name") {
       return(parse_content_type(x[["headers"]][["content-type"]])[["name"]])
+    }
   }
 
   httr::content(x, as, ...)
@@ -36,16 +38,15 @@ httr_content <- function(x, as = NULL, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' redcap_signature_validation_disable(
+#' redcap_signature_disable(
 #'   token = my_token,
 #'   data_dictionary = data_dictionary
 #' )
 #' }
-redcap_signature_validation_disable <- function(
+redcap_signature_disable <- function(
     redcap_uri = redcap_api_endpoints$prod$latest,
     token,
-    data_dictionary
-) {
+    data_dictionary) {
   REDCapR::redcap_metadata_write(
     ds = data_dictionary %>%
       dplyr::mutate(
@@ -76,16 +77,15 @@ redcap_signature_validation_disable <- function(
 #'
 #' @examples
 #' \dontrun{
-#' redcap_signature_validation_enable(
+#' redcap_signature_enable(
 #'   token = my_token,
 #'   data_dictionary = data_dictionary
 #' )
 #' }
-redcap_signature_validation_enable <- function(
+redcap_signature_enable <- function(
     redcap_uri,
     token,
-    data_dictionary
-) {
+    data_dictionary) {
   REDCapR::redcap_metadata_write(
     ds = data_dictionary,
     redcap_uri = redcap_uri,
@@ -107,7 +107,7 @@ redcap_signature_validation_enable <- function(
 redcap_read_file_index <- function(repo) {
   readr::read_csv(
     file.path(repo, "_redcap_file_index.csv"),
-    col_types = 'cccccc'
+    col_types = "cccccc"
   )
 }
 
@@ -140,20 +140,20 @@ redcap_read_file_keys <-
            token,
            data_dictionary,
            project_records,
-           field_type = c("file", "signature", "both")
-  ) {
+           field_type = c("file", "signature", "both")) {
     field_type <- match.arg(field_type)
 
     field_types <-
-      if(.data[["field_type"]] == "file")
+      if (.data[["field_type"]] == "file") {
         "file"
-    else if(.data[["field_type"]] == "signature")
-      "signature"
-    else
-      c("file", "signature")
+      } else if (.data[["field_type"]] == "signature") {
+        "signature"
+      } else {
+        c("file", "signature")
+      }
 
     data_dictionary %>%
-      dplyr::filter(.data[["field_type"]] == "file") %>%
+      dplyr::filter(.data[["field_type"]] %in% field_types) %>%
       dplyr::select(
         dplyr::all_of(
           c(
@@ -230,10 +230,10 @@ redcap_read_file_keys <-
 #' \dontrun{
 #' file_index <-
 #'   redcap_export_files(
-#'   token = my_token
-#'   file_keys = file_keys,
-#'   repo = "~/redcap_download_files"
-#' )
+#'     token = my_token,
+#'     file_keys = file_keys,
+#'     repo = "~/redcap_download_files"
+#'   )
 #' }
 redcap_export_files <-
   function(redcap_uri = redcap_api_endpoints$prod$latest,
@@ -243,23 +243,25 @@ redcap_export_files <-
            pause_base = 1,
            pause_cap = 60,
            pause_min = 1,
-           return_format = c("xml", "csv", "json")
-  ) {
+           return_format = c("xml", "csv", "json")) {
     # alias to call `data_dictionary[[1, 1]] for record id field name
     data_dictionary <- dplyr::tibble(names(file_keys)[3])
 
     return_format <- match.arg(return_format)
 
-    if(dir.exists(repo))
+    if (dir.exists(repo)) {
       stop(sprintf("'%s' already exists", repo))
-    else
+    } else {
       dir.create(repo)
+    }
 
-    if(!("redcap_event_name" %in% names(file_keys)))
+    if (!("redcap_event_name" %in% names(file_keys))) {
       file_keys$redcap_event_name <- NA_character_
+    }
 
-    if(!("redcap_repeat_instance" %in% names(file_keys)))
+    if (!("redcap_repeat_instance" %in% names(file_keys))) {
       file_keys$redcap_repeat_instance <- NA_character_
+    }
 
     total <- nrow(file_keys)
     pb <- progress::progress_bar$new(
@@ -271,19 +273,19 @@ redcap_export_files <-
     download_file_log <-
       file_keys %>%
       dplyr::mutate(
-        rowid = 1:nrow(.data),
+        rowid = seq_len(nrow(.data)),
         n = total
       ) %>%
       dplyr::select(
         dplyr::all_of(
           c(
-            "field_name",             # 1
-            "field_type",             # 2
-            data_dictionary[[1, 1]],  # 3
-            "redcap_event_name",      # 4
+            "field_name", # 1
+            "field_type", # 2
+            data_dictionary[[1, 1]], # 3
+            "redcap_event_name", # 4
             "redcap_repeat_instance", # 5
-            "rowid",                  # 6
-            "n"                       # 7
+            "rowid", # 6
+            "n" # 7
           )
         )
       ) %>%
@@ -308,8 +310,9 @@ redcap_export_files <-
             ifelse(is.na(..5), "", sprintf(", repeat instance = %s", ..5))
           )
 
-        if(exists("pb")) # pb missing on some loops
+        if (exists("pb")) { # pb missing on some loops
           pb$update(..6 / ..7)
+        }
 
         r <- tryCatch(
           {
@@ -345,20 +348,22 @@ redcap_export_files <-
               )
             )
             return(w$message)
-          })
+          }
+        )
 
         http_status <- NA_integer_
         local_file <- NA_character_
         remote_file <- NA_character_
         note <- NA_character_
 
-        if(is.character(r))
+        if (is.character(r)) {
           note <- r
+        }
 
-        if(inherits(r, "response")) {
+        if (inherits(r, "response")) {
           http_status <- r$status_code
 
-          if(!httr::http_error(r)) {
+          if (!httr::http_error(r)) {
             local_file <- basename(httr_content(r, "file_path"))
             remote_file <- httr_content(r, "file_name")
           } else {
@@ -373,11 +378,13 @@ redcap_export_files <-
           !!data_dictionary[[1, 1]] := ..3
         )
 
-        if(!rlang::is_missing(...4))
-          file_index_i$redcap_event_name = ..4
+        if (!rlang::is_missing(...4)) {
+          file_index_i$redcap_event_name <- ..4
+        }
 
-        if(!rlang::is_missing(...5))
-          file_index_i$redcap_repeat_instance = ..5
+        if (!rlang::is_missing(...5)) {
+          file_index_i$redcap_repeat_instance <- ..5
+        }
 
         file_index_i <- file_index_i %>%
           dplyr::mutate(
@@ -385,7 +392,7 @@ redcap_export_files <-
             "remote_file" = remote_file
           )
 
-        if(!is.na(local_file)) {
+        if (!is.na(local_file)) {
           readr::write_csv(
             file_index_i,
             file.path(repo, "_redcap_file_index.csv"),
@@ -437,7 +444,8 @@ redcap_export_files <-
 #' redcap_import_files(
 #'   token = my_token,
 #'   file_index = file_index,
-#'   repo = "~/redcap_download_files")
+#'   repo = "~/redcap_download_files"
+#' )
 #' }
 redcap_import_files <- function(
     redcap_uri = redcap_api_endpoints$prod$latest,
@@ -447,14 +455,13 @@ redcap_import_files <- function(
     pause_base = 1,
     pause_cap = 60,
     pause_min = 1,
-    return_format = c("xml", "csv", "json")
-) {
+    return_format = c("xml", "csv", "json")) {
   # alias to call `data_dictionary[[1, 1]] for record id field name
   data_dictionary <- dplyr::tibble(names(file_index)[3])
 
   return_format <- match.arg(return_format)
 
-  if("signature" %in% file_index$field_type) {
+  if ("signature" %in% file_index$field_type) {
     signature_field_names <- file_index %>%
       dplyr::filter(.data[["field_type"]] == "signature") %>%
       dplyr::pull(.data[["field_name"]]) %>%
@@ -468,11 +475,13 @@ redcap_import_files <- function(
     )
   }
 
-  if(!("redcap_event_name" %in% names(file_index)))
+  if (!("redcap_event_name" %in% names(file_index))) {
     file_index$redcap_event_name <- NA_character_
+  }
 
-  if(!("redcap_repeat_instance" %in% names(file_index)))
+  if (!("redcap_repeat_instance" %in% names(file_index))) {
     file_index$redcap_repeat_instance <- NA_character_
+  }
 
   total <- nrow(file_index)
   pb <- progress::progress_bar$new(
@@ -484,21 +493,21 @@ redcap_import_files <- function(
   upload_file_log <-
     file_index %>%
     dplyr::mutate(
-      rowid = 1:nrow(.data),
+      rowid = seq_len(nrow(.data)),
       n = total
     ) %>%
     dplyr::select(
       dplyr::all_of(
         c(
-          "field_name",             # 1
-          "field_type",             # 2
-          data_dictionary[[1, 1]],  # 3
-          "redcap_event_name",      # 4
+          "field_name", # 1
+          "field_type", # 2
+          data_dictionary[[1, 1]], # 3
+          "redcap_event_name", # 4
           "redcap_repeat_instance", # 5
-          "local_file",             # 6
-          "remote_file",            # 7
-          "rowid",                  # 8
-          "n"                       # 9
+          "local_file", # 6
+          "remote_file", # 7
+          "rowid", # 8
+          "n" # 9
         )
       )
     ) %>%
@@ -523,8 +532,9 @@ redcap_import_files <- function(
           ifelse(is.na(..5), "", sprintf(", repeat instance = %s", ..5))
         )
 
-      if(exists("pb")) # pb missing on some loops?
+      if (exists("pb")) { # pb missing on some loops?
         pb$update(..8 / ..9)
+      }
 
       r <- tryCatch(
         {
@@ -561,18 +571,20 @@ redcap_import_files <- function(
             )
           )
           return(w$message)
-        })
+        }
+      )
 
       http_status <- NA_integer_
       note <- NA_character_
 
-      if(is.character(r))
+      if (is.character(r)) {
         note <- r
+      }
 
-      if(inherits(r, "response")) {
+      if (inherits(r, "response")) {
         http_status <- r$status_code
 
-        if(httr::http_error(r)) {
+        if (httr::http_error(r)) {
           note <- httr::http_status(r)$message
           warning(sprintf("\n%s %s\n%s", "When writing", msg_sfx, note))
         }
@@ -586,11 +598,13 @@ redcap_import_files <- function(
         !!data_dictionary[[1, 1]] := ..3
       )
 
-      if(!rlang::is_missing(...4))
-        upload_file_log_i$redcap_event_name = ..4
+      if (!rlang::is_missing(...4)) {
+        upload_file_log_i$redcap_event_name <- ..4
+      }
 
-      if(!rlang::is_missing(...5))
-        upload_file_log_i$redcap_repeat_instance = ..5
+      if (!rlang::is_missing(...5)) {
+        upload_file_log_i$redcap_repeat_instance <- ..5
+      }
 
       upload_file_log_i %>%
         dplyr::mutate(

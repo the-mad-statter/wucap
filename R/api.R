@@ -324,8 +324,7 @@ redcap_import_file <-
            file,
            type = NULL,
            name = NULL,
-           return_format = c("xml", "csv", "json")
-  ) {
+           return_format = c("xml", "csv", "json")) {
     body <- list(
       "token" = token,
       "content" = "file",
@@ -385,8 +384,7 @@ export_metadata <-
            format = c("xml", "csv", "json"),
            fields = NULL,
            forms = NULL,
-           return_format = c("xml", "csv", "json")
-  ) {
+           return_format = c("xml", "csv", "json")) {
     body <- list(
       "token" = token,
       "content" = "metadata",
@@ -432,8 +430,7 @@ import_metadata <-
            token,
            format = c("xml", "csv", "json"),
            data,
-           return_format = c("xml", "csv", "json")
-  ) {
+           return_format = c("xml", "csv", "json")) {
     body <- list(
       "token" = token,
       "content" = "metadata",

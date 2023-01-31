@@ -51,6 +51,7 @@ Import Files
 redcap_import_files(
   token = my_token,
   file_index = file_index,
-  repo = "~/redcap_download_files")
+  repo = "~/redcap_download_files"
+)
 }
 }

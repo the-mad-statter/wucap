@@ -3,17 +3,24 @@
 #' Constants for various API endpoints
 redcap_api_endpoints <- list(
   "dev" = list(
-    "v12.4.31" = "https://redcapdev.wustl.edu/redcap/api/",
-    "latest" = "https://redcapdev.wustl.edu/redcap/api/"
+    "v12.4.31" =
+      "https://redcapdev.wustl.edu/redcap/api/",
+    "latest" =
+      "https://redcapdev.wustl.edu/redcap/api/"
   ),
   "qa" = list(
-    "v12.4.31" = "https://redcapqa.wustl.edu/redcap/api/",
-    "latest" = "https://redcapqa.wustl.edu/redcap/api/"
+    "v12.4.31" =
+      "https://redcapqa.wustl.edu/redcap/api/",
+    "latest" =
+      "https://redcapqa.wustl.edu/redcap/api/"
   ),
   "prod" = list(
-    "v7.3.5" = "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/redcap/api/",
-    "v12.4.31" = "https://redcap.wustl.edu/redcap/api/",
-    "latest" = "https://redcap.wustl.edu/redcap/api/"
+    "v7.3.5" =
+      "https://redcap.wustl.edu/redcap/srvrs/prod_v3_1_0_001/redcap/api/",
+    "v12.4.31" =
+      "https://redcap.wustl.edu/redcap/api/",
+    "latest" =
+      "https://redcap.wustl.edu/redcap/api/"
   )
 )
 
@@ -48,7 +55,7 @@ redcap_dag_endpoints <- list(
     ),
     "v12.4.31" = paste0(
       "https://redcap.wustl.edu/redcap/redcap_v12.4.31/",
-     "index.php?route=DataAccessGroupsController:index&pid="
+      "index.php?route=DataAccessGroupsController:index&pid="
     ),
     "latest" = paste0(
       "https://redcap.wustl.edu/redcap/redcap_v12.4.31/",
