@@ -269,10 +269,8 @@ redcap_export_files <-
 
     download_file_log <-
       file_keys %>%
-      dplyr::mutate(
-        rowid = dplyr::row_number(.data),
-        n = total
-      ) %>%
+      tibble::rowid_to_column() %>%
+      dplyr::mutate(n = total) %>%
       dplyr::select(
         dplyr::all_of(
           c(
@@ -489,10 +487,8 @@ redcap_import_files <- function(
 
   upload_file_log <-
     file_index %>%
-    dplyr::mutate(
-      rowid = dplyr::row_number(.data),
-      n = total
-    ) %>%
+    tibble::rowid_to_column() %>%
+    dplyr::mutate(n = total) %>%
     dplyr::select(
       dplyr::all_of(
         c(
