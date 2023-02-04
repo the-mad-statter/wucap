@@ -270,7 +270,7 @@ redcap_export_files <-
     download_file_log <-
       file_keys %>%
       dplyr::mutate(
-        rowid = seq_len(nrow(.data)),
+        rowid = dplyr::row_number(.data),
         n = total
       ) %>%
       dplyr::select(
@@ -490,7 +490,7 @@ redcap_import_files <- function(
   upload_file_log <-
     file_index %>%
     dplyr::mutate(
-      rowid = seq_len(nrow(.data)),
+      rowid = dplyr::row_number(.data),
       n = total
     ) %>%
     dplyr::select(
