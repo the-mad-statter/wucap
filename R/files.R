@@ -143,14 +143,11 @@ redcap_read_file_keys <-
            field_type = c("file", "signature", "both")) {
     field_type <- match.arg(field_type)
 
-    field_types <-
-      if (.data[["field_type"]] == "file") {
-        "file"
-      } else if (.data[["field_type"]] == "signature") {
-        "signature"
-      } else {
-        c("file", "signature")
-      }
+    field_types <- if (field_type == "both") {
+      c("file", "signature")
+    } else {
+      field_type
+    }
 
     data_dictionary %>%
       dplyr::filter(.data[["field_type"]] %in% field_types) %>%
