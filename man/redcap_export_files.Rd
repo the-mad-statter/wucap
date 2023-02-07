@@ -5,10 +5,10 @@
 \title{Export Files}
 \usage{
 redcap_export_files(
+  file_keys,
+  repo,
   redcap_uri = redcap_api_endpoints$prod$latest,
   token,
-  file_keys,
-  repo = tempdir(),
   pause_base = 1,
   pause_cap = 60,
   pause_min = 1,
@@ -16,16 +16,16 @@ redcap_export_files(
 )
 }
 \arguments{
+\item{file_keys}{tibble of file keys}
+
+\item{repo}{directory in which to write the downloaded files}
+
 \item{redcap_uri}{The URI (uniform resource identifier) of the REDCap
 project.}
 
 \item{token}{The API token specific to your REDCap project and username (each
 token is unique to each user for each project). See the section on the
 left-hand menu for obtaining a token for a given project.}
-
-\item{file_keys}{tibble of file keys}
-
-\item{repo}{directory in which to write the downloaded files}
 
 \item{pause_base, pause_cap}{This method uses exponential back-off with full
 jitter - this means that each request will randomly wait between 0 and
@@ -41,7 +41,7 @@ passed based on the 'format' flag you passed in or if no format flag was
 passed in, it will default to 'xml'.}
 }
 \value{
-A download log invisibly.
+A download file log invisibly.
 }
 \description{
 Export Files
@@ -50,9 +50,9 @@ Export Files
 \dontrun{
 file_index <-
   redcap_export_files(
-    token = my_token,
     file_keys = file_keys,
-    repo = "~/redcap_download_files"
+    repo = "~/redcap_download_files",
+    token = my_token
   )
 }
 }

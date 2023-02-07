@@ -5,21 +5,12 @@
 \title{Read File Keys}
 \usage{
 redcap_read_file_keys(
-  redcap_uri = redcap_api_endpoints$prod$latest,
-  token,
   data_dictionary,
   project_records,
   field_type = c("file", "signature", "both")
 )
 }
 \arguments{
-\item{redcap_uri}{The URI (uniform resource identifier) of the REDCap
-project.}
-
-\item{token}{The API token specific to your REDCap project and username (each
-token is unique to each user for each project). See the section on the
-left-hand menu for obtaining a token for a given project.}
-
 \item{data_dictionary}{Project metadata (i.e., Data Dictionary values).}
 
 \item{project_records}{Project records.}
@@ -36,7 +27,6 @@ Read File Keys
 \dontrun{
 file_keys <-
   redcap_read_file_keys(
-    token = my_token,
     data_dictionary = data_dictionary,
     project_records = project_records,
     field_type = "both"

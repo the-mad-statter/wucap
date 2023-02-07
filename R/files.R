@@ -1,28 +1,18 @@
 #' Extract File Path or Name from a Request
 #'
-#' @description This is an extension of [httr::content()].
-#'
 #' @param x request object
-#' @param as desired type of output: raw, text or parsed. content attempts to
-#' automatically figure out which one is most appropriate, based on the
-#' content-type. This function adds "file_path" and "file_name" as options.
-#' @param ... Other parameters passed to [httr::content()].
+#' @param as desired type of output: file path or name
 #'
 #' @return For "file_path", a path to the downloaded file. For "file_name" the
-#' intended name of the file. For others see [httr::content()].
+#' intended name of the file.
 #' @export
-httr_content <- function(x, as = NULL, ...) {
-  if (!is.null(as)) {
-    if (as == "file_path") {
-      return(x$content)
-    }
-
-    if (as == "file_name") {
-      return(parse_content_type(x[["headers"]][["content-type"]])[["name"]])
-    }
+request_file_content <- function(x, as = c("file_path", "file_name")) {
+  as <- match.arg(as)
+  if (as == "file_path") {
+    x$content
+  } else {
+    parse_content_type(x[["headers"]][["content-type"]])[["name"]]
   }
-
-  httr::content(x, as, ...)
 }
 
 #' Signature Validation Disable
@@ -105,19 +95,56 @@ redcap_signature_enable <- function(
 #' file_index <- redcap_read_file_index("~/redcap_download_files")
 #' }
 redcap_read_file_index <- function(repo) {
-  readr::read_csv(
+  x <- readr::read_csv(
     file.path(repo, "_redcap_file_index.csv"),
     col_types = "cccccc"
   )
+  class(x) <- c("wucap_file_index", class(x))
+  return(x)
+}
+
+#' Read Download File Log
+#'
+#' @param repo directory containing the downloaded files and download file log.
+#'
+#' @return the contents of the download file log
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' file_download_log <- redcap_read_download_file_log("~/redcap_download_files")
+#' }
+redcap_read_download_file_log <- function(repo) {
+  x <- readr::read_csv(
+    file.path(repo, "_redcap_download_file_log.csv"),
+    col_types = "ccccccic"
+  )
+  class(x) <- c("wucap_download_file_log", class(x))
+  return(x)
+}
+
+#' Read Upload File Log
+#'
+#' @param repo directory containing the downloaded files and upload file log.
+#'
+#' @return the contents of the upload file log
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' file_upload_log <- redcap_read_upload_file_log("~/redcap_download_files")
+#' }
+redcap_read_upload_file_log <- function(repo) {
+  x <- readr::read_csv(
+    file.path(repo, "_redcap_upload_file_log.csv"),
+    col_types = "ccccccic"
+  )
+  class(x) <- c("wucap_upload_file_log", class(x))
+  return(x)
 }
 
 #' Read File Keys
 #'
-#' @param redcap_uri The URI (uniform resource identifier) of the REDCap
-#' project.
-#' @param token The API token specific to your REDCap project and username (each
-#'  token is unique to each user for each project). See the section on the
-#'  left-hand menu for obtaining a token for a given project.
 #' @param data_dictionary Project metadata (i.e., Data Dictionary values).
 #' @param project_records Project records.
 #' @param field_type Type of fields in which to search for files.
@@ -129,16 +156,13 @@ redcap_read_file_index <- function(repo) {
 #' \dontrun{
 #' file_keys <-
 #'   redcap_read_file_keys(
-#'     token = my_token,
 #'     data_dictionary = data_dictionary,
 #'     project_records = project_records,
 #'     field_type = "both"
 #'   )
 #' }
 redcap_read_file_keys <-
-  function(redcap_uri = redcap_api_endpoints$prod$latest,
-           token,
-           data_dictionary,
+  function(data_dictionary,
            project_records,
            field_type = c("file", "signature", "both")) {
     field_type <- match.arg(field_type)
@@ -149,7 +173,7 @@ redcap_read_file_keys <-
       field_type
     }
 
-    data_dictionary %>%
+    file_keys <- data_dictionary %>%
       dplyr::filter(.data[["field_type"]] %in% field_types) %>%
       dplyr::select(
         dplyr::all_of(
@@ -198,17 +222,20 @@ redcap_read_file_keys <-
           "redcap_repeat_instance"
         ))
       )
+
+    class(file_keys) <- c("wucap_file_keys", class(file_keys))
+    return(file_keys)
   }
 
 #' Export Files
 #'
+#' @param file_keys tibble of file keys
+#' @param repo directory in which to write the downloaded files
 #' @param redcap_uri The URI (uniform resource identifier) of the REDCap
 #' project.
 #' @param token The API token specific to your REDCap project and username (each
 #'  token is unique to each user for each project). See the section on the
 #'  left-hand menu for obtaining a token for a given project.
-#' @param file_keys tibble of file keys
-#' @param repo directory in which to write the downloaded files
 #' @param pause_base,pause_cap This method uses exponential back-off with full
 #' jitter - this means that each request will randomly wait between 0 and
 #' pause_base * 2 ^ attempt seconds, up to a maximum of pause_cap seconds.
@@ -220,34 +247,44 @@ redcap_read_file_keys <-
 #' passed based on the 'format' flag you passed in or if no format flag was
 #' passed in, it will default to 'xml'.
 #'
-#' @return A download log invisibly.
+#' @return A download file log invisibly.
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' file_index <-
 #'   redcap_export_files(
-#'     token = my_token,
 #'     file_keys = file_keys,
-#'     repo = "~/redcap_download_files"
+#'     repo = "~/redcap_download_files",
+#'     token = my_token
 #'   )
 #' }
 redcap_export_files <-
-  function(redcap_uri = redcap_api_endpoints$prod$latest,
+  function(file_keys,
+           repo,
+           redcap_uri = redcap_api_endpoints$prod$latest,
            token,
-           file_keys,
-           repo = tempdir(),
            pause_base = 1,
            pause_cap = 60,
            pause_min = 1,
            return_format = c("xml", "csv", "json")) {
+    checkmate::assert_class(file_keys, "wucap_file_keys")
+
     # alias to call `data_dictionary[[1, 1]] for record id field name
     data_dictionary <- dplyr::tibble(names(file_keys)[3])
 
     return_format <- match.arg(return_format)
 
     if (dir.exists(repo)) {
-      stop(sprintf("'%s' already exists", repo))
+      file_keys <- dplyr::anti_join(
+        file_keys,
+        redcap_read_file_index(repo),
+        by = names(file_keys)
+      )
+
+      if (nrow(file_keys) == 0) {
+        return(redcap_read_download_file_log(repo) %>% dplyr::slice(0))
+      }
     } else {
       dir.create(repo)
     }
@@ -359,8 +396,8 @@ redcap_export_files <-
           http_status <- r$status_code
 
           if (!httr::http_error(r)) {
-            local_file <- basename(httr_content(r, "file_path"))
-            remote_file <- httr_content(r, "file_name")
+            local_file <- basename(request_file_content(r, "file_path"))
+            remote_file <- request_file_content(r, "file_name")
           } else {
             note <- httr::http_status(r)$message
             warning(sprintf("\n%s %s\n%s", "When reading", msg_sfx, note))
@@ -388,38 +425,44 @@ redcap_export_files <-
           )
 
         if (!is.na(local_file)) {
+          file_index <- file.path(repo, "_redcap_file_index.csv")
           readr::write_csv(
-            file_index_i,
-            file.path(repo, "_redcap_file_index.csv"),
+            x = file_index_i,
+            file = file_index,
             na = "",
-            append = TRUE
+            append = file.exists(file_index)
           )
         }
 
+        file_log <- file.path(repo, "_redcap_download_file_log.csv")
         file_index_i %>%
           dplyr::mutate(
             "http_status" = http_status,
             "note" = note
           ) %>%
           readr::write_csv(
-            file.path(repo, "_redcap_download_file_log.csv"),
+            file = file_log,
             na = "",
-            append = TRUE
+            append = file.exists(file_log)
           )
       })
 
+    class(download_file_log) <- c(
+      "wucap_download_file_log",
+      class(download_file_log)
+    )
     invisible(download_file_log)
   }
 
 #' Import Files
 #'
+#' @param file_index contents of the index file
+#' @param repo Directory containing the downloaded files and index file.
 #' @param redcap_uri The URI (uniform resource identifier) of the REDCap
 #' project.
 #' @param token The API token specific to your REDCap project and username (each
 #'  token is unique to each user for each project). See the section on the
 #'  left-hand menu for obtaining a token for a given project.
-#' @param file_index contents of the index file
-#' @param repo Directory containing the downloaded files and index file.
 #' @param pause_base,pause_cap This method uses exponential back-off with full
 #' jitter - this means that each request will randomly wait between 0 and
 #' pause_base * 2 ^ attempt seconds, up to a maximum of pause_cap seconds.
@@ -431,26 +474,28 @@ redcap_export_files <-
 #' passed based on the 'format' flag you passed in or if no format flag was
 #' passed in, it will default to 'xml'.
 #'
-#' @return An upload log invisibly.
+#' @return An upload file log invisibly.
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' redcap_import_files(
-#'   token = my_token,
-#'   file_index = file_index,
-#'   repo = "~/redcap_download_files"
+#'   file_index = redcap_read_file_index(repo),
+#'   repo = "~/redcap_download_files",
+#'   token = my_token
 #' )
 #' }
 redcap_import_files <- function(
-    redcap_uri = redcap_api_endpoints$prod$latest,
-    token,
     file_index,
     repo,
+    redcap_uri = redcap_api_endpoints$prod$latest,
+    token,
     pause_base = 1,
     pause_cap = 60,
     pause_min = 1,
     return_format = c("xml", "csv", "json")) {
+  checkmate::assert_class(file_index, "wucap_file_index")
+
   # alias to call `data_dictionary[[1, 1]] for record id field name
   data_dictionary <- dplyr::tibble(names(file_index)[3])
 
@@ -583,8 +628,6 @@ redcap_import_files <- function(
         }
       }
 
-      upload_file_log_file <- file.path(repo, "_redcap_upload_file_log.csv")
-
       upload_file_log_i <- dplyr::tibble(
         "field_name" = ..1,
         "field_type" = ..2,
@@ -599,6 +642,7 @@ redcap_import_files <- function(
         upload_file_log_i$redcap_repeat_instance <- ..5
       }
 
+      file_log <- file.path(repo, "_redcap_upload_file_log.csv")
       upload_file_log_i %>%
         dplyr::mutate(
           "local_file" = ..6,
@@ -607,11 +651,12 @@ redcap_import_files <- function(
           "note" = note
         ) %>%
         readr::write_csv(
-          upload_file_log_file,
+          file = file_log,
           na = "",
-          append = file.exists(upload_file_log_file)
+          append = file.exists(file_log)
         )
     })
 
+  class(upload_file_log) <- c("wucap_upload_file_log", class(upload_file_log))
   invisible(upload_file_log)
 }

@@ -41,7 +41,7 @@ passed based on the 'format' flag you passed in or if no format flag was
 passed in, it will default to 'xml'.}
 }
 \value{
-An upload log invisibly.
+An upload file log invisibly.
 }
 \description{
 Import Files
@@ -50,7 +50,7 @@ Import Files
 \dontrun{
 redcap_import_files(
   token = my_token,
-  file_index = file_index,
+  file_index = redcap_read_file_index(repo),
   repo = "~/redcap_download_files"
 )
 }
