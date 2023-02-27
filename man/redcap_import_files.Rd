@@ -5,10 +5,10 @@
 \title{Import Files}
 \usage{
 redcap_import_files(
-  redcap_uri = redcap_api_endpoints$prod$latest,
-  token,
   file_index,
   repo,
+  redcap_uri = redcap_api_endpoints$prod$latest,
+  token,
   pause_base = 1,
   pause_cap = 60,
   pause_min = 1,
@@ -16,16 +16,16 @@ redcap_import_files(
 )
 }
 \arguments{
+\item{file_index}{contents of the index file}
+
+\item{repo}{Directory containing the downloaded files and index file.}
+
 \item{redcap_uri}{The URI (uniform resource identifier) of the REDCap
 project.}
 
 \item{token}{The API token specific to your REDCap project and username (each
 token is unique to each user for each project). See the section on the
 left-hand menu for obtaining a token for a given project.}
-
-\item{file_index}{contents of the index file}
-
-\item{repo}{Directory containing the downloaded files and index file.}
 
 \item{pause_base, pause_cap}{This method uses exponential back-off with full
 jitter - this means that each request will randomly wait between 0 and
@@ -49,9 +49,9 @@ Import Files
 \examples{
 \dontrun{
 redcap_import_files(
-  token = my_token,
   file_index = redcap_read_file_index(repo),
-  repo = "~/redcap_download_files"
+  repo = "~/redcap_download_files",
+  token = my_token
 )
 }
 }

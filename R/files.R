@@ -15,6 +15,47 @@ request_file_content <- function(x, as = c("file_path", "file_name")) {
   }
 }
 
+#' File Set Difference
+#'
+#' @param x file keys or index
+#' @param y file index or keys
+#'
+#' @return information about files in x that are not in y
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' repo <- "~/redcap_download_files"
+#' local_file_index <- redcap_read_file_index(repo)
+#'
+#' ## check for missing downloads
+#' source_file_keys <-
+#'   redcap_read_file_keys(data_dictionary, project_records)
+#' missing_downloads <- file_setdiff(source_file_keys, local_file_index)
+#' redcap_export_files(missing_downloads, repo, token = source_token)
+#'
+#' ## check for missing uploads
+#' destination_file_keys <-
+#'   redcap_read_file_keys(data_dictionary, project_records)
+#' missing_uploads <- file_setdiff(local_file_index, destination_file_keys)
+#' redcap_import_files(missing_uploads, repo, token = destination_token)
+#' }
+file_setdiff <- function(x, y) {
+  UseMethod("file_setdiff")
+}
+
+#' @describeIn file_setdiff Missing Downloads
+file_setdiff.wucap_file_keys <- function(x, y) {
+  checkmate::assert_class(y, "wucap_file_index")
+  dplyr::anti_join(x, y)
+}
+
+#' @describeIn file_setdiff Missing Uploads
+file_setdiff.wucap_file_index <- function(x, y) {
+  checkmate::assert_class(y, "wucap_file_keys")
+  dplyr::anti_join(x, y)
+}
+
 #' Signature Validation Disable
 #'
 #' @param redcap_uri The URI (uniform resource identifier) of the REDCap
@@ -83,6 +124,51 @@ redcap_signature_enable <- function(
   )
 }
 
+#' Read File Metafile
+#'
+#' @param repo directory containing the downloaded files and listed metafile
+#' @param metafile the metafile to read
+#' @param metaclass the class of metafile
+#'
+#' @return the contents of the metafile
+read_file_metafile <-
+  function(
+      repo,
+      metafile = c(
+        "_redcap_file_index.csv",
+        "_redcap_download_file_log.csv",
+        "_redcap_upload_file_log.csv"
+      ),
+      metaclass = c(
+        "wucap_file_index",
+        "wucap_download_file_log",
+        "wucap_upload_file_log"
+      )) {
+    metafile <- match.arg(metafile)
+    metaclass <- match.arg(metaclass)
+
+
+    p <- file.path(repo, metafile)
+
+    n <- names(readr::read_csv(p, n_max = 0, show_col_types = FALSE))
+
+    col_spec <- readr::cols(
+      field_name               = readr::col_character(),
+      field_type               = readr::col_character(),
+      !!n[3] := readr::col_character(),
+      redcap_event_name        = readr::col_character(),
+      redcap_repeat_instance   = readr::col_character(),
+      local_file               = readr::col_character(),
+      remote_file              = readr::col_character(),
+      read_status              = readr::col_integer(),
+      note                     = readr::col_character()
+    )$cols[n]
+
+    m <- readr::read_csv(p, col_types = col_spec)
+    class(m) <- c(metaclass, class(m))
+    return(m)
+  }
+
 #' Read File Index
 #'
 #' @param repo directory containing the downloaded files and index file.
@@ -95,12 +181,11 @@ redcap_signature_enable <- function(
 #' file_index <- redcap_read_file_index("~/redcap_download_files")
 #' }
 redcap_read_file_index <- function(repo) {
-  x <- readr::read_csv(
-    file.path(repo, "_redcap_file_index.csv"),
-    col_types = "cccccc"
+  read_file_metafile(
+    repo,
+    "_redcap_file_index.csv",
+    "wucap_file_index"
   )
-  class(x) <- c("wucap_file_index", class(x))
-  return(x)
 }
 
 #' Read Download File Log
@@ -115,12 +200,11 @@ redcap_read_file_index <- function(repo) {
 #' file_download_log <- redcap_read_download_file_log("~/redcap_download_files")
 #' }
 redcap_read_download_file_log <- function(repo) {
-  x <- readr::read_csv(
-    file.path(repo, "_redcap_download_file_log.csv"),
-    col_types = "ccccccic"
+  read_file_metafile(
+    repo,
+    "_redcap_download_file_log.csv",
+    "wucap_download_file_log"
   )
-  class(x) <- c("wucap_download_file_log", class(x))
-  return(x)
 }
 
 #' Read Upload File Log
@@ -135,12 +219,11 @@ redcap_read_download_file_log <- function(repo) {
 #' file_upload_log <- redcap_read_upload_file_log("~/redcap_download_files")
 #' }
 redcap_read_upload_file_log <- function(repo) {
-  x <- readr::read_csv(
-    file.path(repo, "_redcap_upload_file_log.csv"),
-    col_types = "ccccccic"
+  read_file_metafile(
+    repo,
+    "_redcap_upload_file_log.csv",
+    "wucap_upload_file_log"
   )
-  class(x) <- c("wucap_upload_file_log", class(x))
-  return(x)
 }
 
 #' Read File Keys
@@ -274,20 +357,6 @@ redcap_export_files <-
     data_dictionary <- dplyr::tibble(names(file_keys)[3])
 
     return_format <- match.arg(return_format)
-
-    if (dir.exists(repo)) {
-      file_keys <- dplyr::anti_join(
-        file_keys,
-        redcap_read_file_index(repo),
-        by = names(file_keys)
-      )
-
-      if (nrow(file_keys) == 0) {
-        return(redcap_read_download_file_log(repo) %>% dplyr::slice(0))
-      }
-    } else {
-      dir.create(repo)
-    }
 
     if (!("redcap_event_name" %in% names(file_keys))) {
       file_keys$redcap_event_name <- NA_character_
