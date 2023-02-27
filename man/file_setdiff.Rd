@@ -23,13 +23,6 @@ information about files in x that are not in y
 \description{
 File Set Difference
 }
-\section{Methods (by class)}{
-\itemize{
-\item \code{file_setdiff(wucap_file_keys)}: Missing Downloads
-
-\item \code{file_setdiff(wucap_file_index)}: Missing Uploads
-
-}}
 \examples{
 \dontrun{
 repo <- "~/redcap_download_files"

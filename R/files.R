@@ -41,19 +41,21 @@ request_file_content <- function(x, as = c("file_path", "file_name")) {
 #' redcap_import_files(missing_uploads, repo, token = destination_token)
 #' }
 file_setdiff <- function(x, y) {
-  UseMethod("file_setdiff")
+  UseMethod("file_setdiff", x)
 }
 
-#' @describeIn file_setdiff Missing Downloads
+#' @rdname file_setdiff
+#' @export
 file_setdiff.wucap_file_keys <- function(x, y) {
   checkmate::assert_class(y, "wucap_file_index")
-  dplyr::anti_join(x, y)
+  dplyr::anti_join(x, y, names(x))
 }
 
-#' @describeIn file_setdiff Missing Uploads
+#' @rdname file_setdiff
+#' @export
 file_setdiff.wucap_file_index <- function(x, y) {
   checkmate::assert_class(y, "wucap_file_keys")
-  dplyr::anti_join(x, y)
+  dplyr::anti_join(x, y, names(x))
 }
 
 #' Signature Validation Disable
