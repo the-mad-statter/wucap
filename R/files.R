@@ -654,7 +654,7 @@ redcap_import_files <- function(
             field = ..1,
             event = ...4,
             repeat_instance = ...5,
-            file = ..6,
+            file = file.path(repo, ..6),
             name = ..7,
             return_format = return_format
           )
