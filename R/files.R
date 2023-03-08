@@ -55,7 +55,7 @@ file_setdiff.wucap_file_keys <- function(x, y) {
 #' @export
 file_setdiff.wucap_file_index <- function(x, y) {
   checkmate::assert_class(y, "wucap_file_keys")
-  dplyr::anti_join(x, y, names(x))
+  dplyr::anti_join(x, y, names(y))
 }
 
 #' Signature Validation Disable
@@ -134,18 +134,17 @@ redcap_signature_enable <- function(
 #'
 #' @return the contents of the metafile
 read_file_metafile <-
-  function(
-      repo,
-      metafile = c(
-        "_redcap_file_index.csv",
-        "_redcap_download_file_log.csv",
-        "_redcap_upload_file_log.csv"
-      ),
-      metaclass = c(
-        "wucap_file_index",
-        "wucap_download_file_log",
-        "wucap_upload_file_log"
-      )) {
+  function(repo,
+           metafile = c(
+             "_redcap_file_index.csv",
+             "_redcap_download_file_log.csv",
+             "_redcap_upload_file_log.csv"
+           ),
+           metaclass = c(
+             "wucap_file_index",
+             "wucap_download_file_log",
+             "wucap_upload_file_log"
+           )) {
     metafile <- match.arg(metafile)
     metaclass <- match.arg(metaclass)
 
@@ -155,15 +154,15 @@ read_file_metafile <-
     n <- names(readr::read_csv(p, n_max = 0, show_col_types = FALSE))
 
     col_spec <- readr::cols(
-      field_name               = readr::col_character(),
-      field_type               = readr::col_character(),
+      field_name = readr::col_character(),
+      field_type = readr::col_character(),
       !!n[3] := readr::col_character(),
-      redcap_event_name        = readr::col_character(),
-      redcap_repeat_instance   = readr::col_character(),
-      local_file               = readr::col_character(),
-      remote_file              = readr::col_character(),
-      read_status              = readr::col_integer(),
-      note                     = readr::col_character()
+      redcap_event_name = readr::col_character(),
+      redcap_repeat_instance = readr::col_character(),
+      local_file = readr::col_character(),
+      remote_file = readr::col_character(),
+      read_status = readr::col_integer(),
+      note = readr::col_character()
     )$cols[n]
 
     m <- readr::read_csv(p, col_types = col_spec)
@@ -731,3 +730,60 @@ redcap_import_files <- function(
   class(upload_file_log) <- c("wucap_upload_file_log", class(upload_file_log))
   invisible(upload_file_log)
 }
+
+#' Validate File Index
+#'
+#' @param repo Directory containing the downloaded files and index file.
+#' @param purge_rcf Which REDCap files (.rcf) to purge: `not_indexed`: existing
+#' local files not listed in the index file; `not_saved`: local files listed in
+#' the index but not saved locally
+#'
+#' @return a pair of [dplyr::tibble()] listing REDCap files not saved or not
+#' indexed
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' ## check validity
+#' redcap_validate_file_index("my_repo")
+#' }
+redcap_validate_file_index <-
+  function(repo, purge_rcf = c("none", "not_indexed", "not_saved", "both")) {
+    purge_rcf <- match.arg(purge_rcf)
+
+    file_index <- redcap_read_file_index(repo)
+    rcf_saved <- dplyr::tibble(local_file = list.files(repo, "\\.rcf$"))
+    rcf_indexed <- dplyr::select(file_index, .data[["local_file"]])
+    rcf_not_indexed <- dplyr::anti_join(
+      rcf_saved,
+      rcf_indexed,
+      dplyr::join_by(.data[["local_file"]])
+    )
+    rcf_not_saved <- dplyr::anti_join(
+      rcf_indexed,
+      rcf_saved,
+      dplyr::join_by(.data[["local_file"]])
+    )
+
+    if (purge_rcf %in% c("not_indexed", "both")) {
+      purrr::walk(rcf_not_indexed, ~ unlink(file.path(repo, .)))
+    }
+
+    if (purge_rcf %in% c("not_saved", "both")) {
+      readr::write_csv(
+        dplyr::anti_join(
+          file_index,
+          rcf_not_saved,
+          dplyr::join_by(.data[["local_file"]])
+        ),
+        file.path(repo, "_redcap_file_index.csv"),
+        na = ""
+      )
+    }
+
+    if (purge_rcf != "none") {
+      redcap_validate_file_index(repo, "none")
+    }
+
+    list(rcf_not_saved = rcf_not_saved, rcf_not_indexed = rcf_not_indexed)
+  }

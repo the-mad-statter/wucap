@@ -1,0 +1,170 @@
+---
+title: "REDCap File Migration Functions"
+output: 
+  rmarkdown::html_document:
+    toc: TRUE
+    toc_float: TRUE
+    css: redcap_project_migration_app/edu.wustl.ohids.css
+  rmarkdown::pdf_document: default
+vignette: >
+  %\VignetteIndexEntry{REDCap File Migration Functions}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(wucap)
+```
+
+# Background
+
+[Washington University in Saint Louis](https://wustl.edu/) (WUSTL) maintains a legacy [REDCap](https://www.project-redcap.org/) instance frozen at v7.3.5 due to undocumented modification of the codebase to support home-grown features. Migration of active projects from legacy to current production and archival of inactive projects are desirable due to failing hardware.
+
+Upgrading REDCap in place is best practice but was never possible due to the codebase modifications. The next best approach is export and import of a [CDISC](https://www.cdisc.org/) Operational Data Model (ODM) extensible markup language (XML) file, but this fails for some projects because current production is unable to import large XML files.
+
+Therefore, we are reduced to migrating projects in parts either using the web or application programming interface (API). The web interface approach is tedious (especially when file uploads are present), and using the API is our best option.
+
+This vignette showcases the functions dealing with the migration of file uploads from one REDCap project to another.
+
+# Package Installation
+
+The [{wucap}](https://github.com/the-mad-statter/wucap) package was written and hosted on Github to make distribution and use of the code as convenient as possible.
+
+Before running the app code, the package must be installed. To install the package run the following command in a Databricks workbook R cell:
+
+```
+remotes::install_github("the-mad-statter/wucap")
+```
+
+# File Transfer Functions
+
+## SSL Certificate Checking
+
+If it is necessary to turn off the default SSL certificate validation, the following code may be used:
+
+```
+httr::set_config(httr::config(ssl_verifypeer = 0L, ssl_verifyhost = 0L))
+```
+
+## Endpoints
+
+Make a note of source and destination project API endpoints.
+
+```
+redcap_endpoint_src <- wucap:::redcap_api_endpoints$prod$v7.3.5
+
+redcap_endpoint_dst <- wucap:::redcap_api_endpoints$prod$latest
+```
+
+## Tokens
+
+Gather authorization tokens.
+
+```
+redcap_token_src <- retrieve_credential_local("1784")$token
+
+redcap_token_dst <- retrieve_credential_local("14464")$token
+```
+
+## Local Repository Location
+
+```
+repo <- "C:/Users/schuelke/Desktop/redcap_download_files"
+```
+
+## Download Files from the Source Project
+
+```
+# read source data dictionary to determine file field names
+data_dictionary_src <- REDCapR::redcap_metadata_read(
+  redcap_endpoint_src, 
+  redcap_token_src
+)$data
+
+# read source project records to identify existing uploads
+project_records_src <- REDCapR::redcap_read(
+  redcap_uri = redcap_endpoint_src,
+  token = redcap_token_src
+)$data
+
+# construct file (primary) keys object to identify existing uploads
+file_keys_src <- redcap_read_file_keys(
+  data_dictionary_src, 
+  project_records_src,
+  field_type = "both"
+)
+
+# download the files to the local repo
+redcap_export_files(
+  file_keys_src,
+  repo,
+  redcap_endpoint_src,
+  redcap_token_src
+)
+
+# read the file index to check for missing downloads due to download errors
+file_index <- redcap_read_file_index(repo)
+
+# identify any missing downloads
+missing_downloads <- file_setdiff(file_keys_src, file_index)
+
+# if there are missing downloads, export them from the source project
+redcap_export_files(
+  missing_downloads,
+  repo,
+  redcap_endpoint_src,
+  redcap_token_src
+)
+```
+
+## Upload Files to the Destination Project
+
+```
+# upload the files from the local repo
+redcap_import_files(
+  file_index,
+  repo,
+  redcap_endpoint_dst,
+  redcap_token_dst
+)
+
+# read the destination project dictionary to identify file field names
+data_dictionary_dst <- REDCapR::redcap_metadata_read(
+  redcap_endpoint_dst, 
+  redcap_token_dst
+)$data
+
+# read the destination project records to identify existing uploads
+project_records_dst <- REDCapR::redcap_read(
+  redcap_uri = redcap_endpoint_dst,
+  token = redcap_token_dst
+)$data
+
+# construct a file (primary) key object to identify existing uploads
+file_keys_dst <- redcap_read_file_keys(
+  data_dictionary_dst, 
+  project_records_dst,
+  field_type = "both"
+)
+
+# check for missing uploads
+missing_uploads <- file_setdiff(file_index, file_keys_dst)
+
+# if there are any missing uploads, import them into the destination project
+redcap_import_files(
+  missing_uploads,
+  repo,
+  redcap_endpoint_dst,
+  redcap_token_dst
+)
+```

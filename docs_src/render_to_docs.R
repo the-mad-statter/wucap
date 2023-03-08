@@ -10,5 +10,6 @@ render_to_docs <-
   }
 
 render_to_docs("docs_src/index.Rmd")
+render_to_docs("vignettes/redcap_file_migration_functions.Rmd")
 render_to_docs("vignettes/redcap_project_migration_app.Rmd")
 render_to_docs("vignettes/redcap_project_migration_app2.Rmd")
