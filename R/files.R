@@ -510,6 +510,8 @@ redcap_export_files <-
             "http_status" = http_status,
             "note" = note
           ) %>%
+          dplyr::mutate("datetime" = Sys.time()) %>%
+          dplyr::select(.data[["datetime"]], dplyr::everything()) %>%
           readr::write_csv(
             file = file_log,
             na = "",
@@ -720,6 +722,8 @@ redcap_import_files <- function(
           "http_status" = http_status,
           "note" = note
         ) %>%
+        dplyr::mutate("datetime" = Sys.time()) %>%
+        dplyr::select(.data[["datetime"]], dplyr::everything()) %>%
         readr::write_csv(
           file = file_log,
           na = "",
@@ -786,4 +790,34 @@ redcap_validate_file_index <-
     }
 
     list(rcf_not_saved = rcf_not_saved, rcf_not_indexed = rcf_not_indexed)
+  }
+
+#' Validate File Migration
+#'
+#' @param file_keys_src file keys from the source project
+#' @param file_keys_dst file keys from the destination project
+#'
+#' @return A pair of file key objects listing files in the destination project
+#' that are not in the source project and files in the source project that are
+#' not in the destination project.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' redcap_validate_file_migration(file_keys_src, file_keys_dst)
+#' }
+redcap_validate_file_migration <-
+  function(file_keys_src, file_keys_dst) {
+    checkmate::assert_class(file_keys_src, "wucap_file_keys")
+    checkmate::assert_class(file_keys_dst, "wucap_file_keys")
+    checkmate::assert_set_equal(names(file_keys_src), names(file_keys_dst))
+
+    list(
+      file_keys_in_dst_not_src = dplyr::anti_join(
+        file_keys_dst, file_keys_src, names(file_keys_dst)
+      ),
+      file_keys_in_src_not_dst = dplyr::anti_join(
+        file_keys_src, file_keys_dst, names(file_keys_src)
+      )
+    )
   }
