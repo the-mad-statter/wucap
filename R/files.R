@@ -290,7 +290,11 @@ redcap_read_file_keys <-
           dplyr::rename(file = ..1) %>% # [document]
           dplyr::mutate(
             field_name = ..1,
-            field_type = ..2
+            field_type = ..2,
+            file = as.character(.data[["file"]]) # if no uploads for this field
+                                                 # file will be logical(0) which
+                                                 # will prevent the purrr row
+                                                 # bind so ensure character(0)
           )
       }) %>%
       dplyr::select(
